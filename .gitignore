@@ -1,0 +1,24 @@
+# Secrets: API keys live only in the terminal environment, never in files
+.env
+.env.*
+*.env
+secrets*
+*.key
+*.pem
+
+# Runtime state (memory, history, caches); wiped before every run
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
