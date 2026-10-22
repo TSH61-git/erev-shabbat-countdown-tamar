@@ -29,9 +29,9 @@ async def run_async(scenario_path: str, out_path: str, data_dir: str | None = No
     scenario = load_scenario(scenario_path)
     store = reset_state(config.data_dir("sdk", data_dir))
     log(f"clean state in {store.root}; {len(scenario.turns)} turns in {len(scenario.sessions)} sessions")
-    records, extra, resume, session_ids = [], [], None, []
+    records, extra, resume, session_ids, carry = [], [], None, [], None
     for turns in scenario.sessions:
-        async with SdkAgent(store, turns[0].session, resume, fetch, client_factory) as agent:
+        async with SdkAgent(store, turns[0].session, resume, fetch, client_factory, carry) as agent:
             for turn in turns:
                 record = await agent.ask(turn)
                 log(f"turn {turn.turn} reply: {record.reply_preview[:120]!r}")
@@ -39,6 +39,7 @@ async def run_async(scenario_path: str, out_path: str, data_dir: str | None = No
             extra += agent.turn_extra
             resume = agent.session_id
             session_ids.append(agent.session_id)
+            carry = agent.carry()
     checks = run_checks(store, scenario.expect)
     for c in checks:
         log(f"check {c.id} {'PASS' if c.passed else 'FAIL'}: {c.name} ({c.detail})")
@@ -49,6 +50,7 @@ async def run_async(scenario_path: str, out_path: str, data_dir: str | None = No
          "claude-code-cli (bundled)": __cli_version__},
         {"session_ids": session_ids,
          "reported_total_cost_usd": round(sum(e["reported_cost_usd"] for e in extra), 6),
+         "sdk_final_total_cost_usd": carry["total_cost_usd"] if carry else 0.0,
          "compacted_turns": [r.turn for r in records if r.compacted],
          "per_turn": extra})
     write_results(out_path, results)

@@ -10,7 +10,7 @@ from claude_agent_sdk import (AssistantMessage, ClaudeAgentOptions, ClaudeSDKCli
 from SDK.tools import SERVER, allowed_tool_names, build_server
 from shared import config, hebcal, memory_files as mem
 from shared.context_line import render_context
-from shared.pricing import cost_usd
+from shared.pricing import PRICES, cost_usd
 from shared.prompts import SYSTEM_PROMPT
 from shared.results import TurnRecord
 from shared.scenario import Turn
@@ -50,7 +50,7 @@ def render_claude_md(store: DataStore) -> str:
 class SdkAgent:
     def __init__(self, store: DataStore, session: int, resume: str | None = None,
                  fetch: hebcal.Fetch = hebcal.fetch_json,
-                 client_factory: ClientFactory | None = None):
+                 client_factory: ClientFactory | None = None, carry: dict | None = None):
         self.store, self.session, self.resume, self.fetch = store, session, resume, fetch
         self.client_factory = client_factory or (lambda options, tools: ClaudeSDKClient(options))
         self.workspace = store.path("workspace")
@@ -58,8 +58,35 @@ class SdkAgent:
         self.server, self.tools = build_server(lambda: self.ctx)
         self.session_id = resume
         self.compacted = False
-        self.cost_so_far = 0.0
+        # total_cost_usd and model_usage are running totals that a resumed session
+        # continues from the transcript, so session 2 must start from session 1's totals.
+        carry = carry or {}
+        self.cost_so_far = carry.get("total_cost_usd", 0.0)
+        self.model_usage_seen: dict[str, dict] = dict(carry.get("model_usage", {}))
         self.turn_extra: list[dict] = []
+
+    def carry(self) -> dict:
+        return {"total_cost_usd": self.cost_so_far, "model_usage": self.model_usage_seen}
+
+    def helper_usage(self, model_usage: dict | None) -> dict[str, dict]:
+        # Claude Code also calls a small helper model (seen: claude-haiku-5-5); it shows up
+        # only in the running model_usage totals, so take this turn's difference.
+        out = {}
+        for model, mu in (model_usage or {}).items():
+            before = self.model_usage_seen.get(model, {})
+            delta = {k: (mu.get(k) or 0) - (before.get(k) or 0)
+                     for k in ("inputTokens", "outputTokens", "cacheReadInputTokens",
+                               "cacheCreationInputTokens", "costUSD")}
+            self.model_usage_seen[model] = mu
+            if model != config.MODEL and any(v > 0 for v in delta.values()):
+                if model in PRICES:
+                    delta["cost"] = cost_usd(model, delta["inputTokens"],
+                                             delta["cacheReadInputTokens"],
+                                             delta["cacheCreationInputTokens"], delta["outputTokens"])
+                else:
+                    delta["cost"] = round(delta["costUSD"], 6)
+                out[model] = delta
+        return out
 
     def options(self) -> ClaudeAgentOptions:
         return ClaudeAgentOptions(
@@ -118,7 +145,8 @@ class SdkAgent:
         await self.client.query(turn.text)  # replaces: loop.py
         async for msg in self.client.receive_response():  # replaces: loop.py
             if isinstance(msg, AssistantMessage):
-                # One API call can arrive as several messages with the same id and usage.
+                # One API call arrives as several messages with the same id. Their usage is a
+                # stream snapshot (output is cut short), so it is used only to count calls.
                 if msg.usage:
                     usage_by_call[msg.message_id or f"call{len(usage_by_call)}"] = msg.usage  # replaces: tokens.py
                 for block in msg.content:
@@ -135,22 +163,31 @@ class SdkAgent:
         self.session_id = result.session_id
         self.store.write_json(SESSION_FILE, {"session_id": self.session_id})  # replaces: history.py
 
-        def total(field: str) -> int:
-            return sum(u.get(field) or 0 for u in usage_by_call.values())  # replaces: tokens.py
-
-        tok = [total("input_tokens"), total("cache_read_input_tokens"),  # replaces: tokens.py
-               total("cache_creation_input_tokens"), total("output_tokens")]  # replaces: tokens.py
-        cost = cost_usd(config.MODEL, *tok)  # replaces: tokens.py
-        # total_cost_usd is cumulative within one client, so the turn's share is the difference.
-        reported = round((result.total_cost_usd or 0) - self.cost_so_far, 6)  # replaces: tokens.py
-        self.cost_so_far = result.total_cost_usd or 0
+        # ResultMessage.usage is the main model's complete total for this query (all calls,
+        # final output tokens); it matched the SDK's own costUSD on the first run.
+        u = result.usage or {}  # replaces: tokens.py
+        tok = [u.get("input_tokens") or 0, u.get("cache_read_input_tokens") or 0,  # replaces: tokens.py
+               u.get("cache_creation_input_tokens") or 0, u.get("output_tokens") or 0]  # replaces: tokens.py
+        w1h = (u.get("cache_creation") or {}).get("ephemeral_1h_input_tokens") or 0  # replaces: tokens.py
+        helpers = self.helper_usage(getattr(result, "model_usage", None))  # replaces: tokens.py
+        cost = round(cost_usd(config.MODEL, *tok, cache_write_1h=w1h)  # replaces: tokens.py
+                     + sum(h["cost"] for h in helpers.values()), 6)  # replaces: tokens.py
+        total_now = result.total_cost_usd or 0
+        if total_now < self.cost_so_far:
+            log("SDK running totals restarted; this turn's reported cost is the new total")
+            self.cost_so_far = 0.0
+        reported = round(total_now - self.cost_so_far, 6)  # replaces: tokens.py
+        self.cost_so_far = total_now
+        helper_note = "".join(f", helper {m}: in={h['inputTokens']:,} out={h['outputTokens']:,}"
+                              for m, h in helpers.items())
         log(f"turn {turn.turn}: {len(usage_by_call)} model calls (num_turns={result.num_turns}), "
-            f"in={tok[0]:,} cache_r={tok[1]:,} cache_w={tok[2]:,} out={tok[3]:,}, "
-            f"${cost:.4f} by our prices, ${reported:.4f} reported by the SDK")
+            f"in={tok[0]:,} cache_r={tok[1]:,} cache_w={tok[2]:,} (1h {w1h:,}) out={tok[3]:,}"
+            f"{helper_note}, ${cost:.4f} by our prices, ${reported:.4f} reported by the SDK")
         self.turn_extra.append({"turn": turn.turn, "num_turns": result.num_turns,
-                                "reported_cost_usd": reported, "result_usage": result.usage,
+                                "reported_cost_usd": reported, "helper_models": helpers,
+                                "result_usage": result.usage,
                                 "model_usage": getattr(result, "model_usage", None),
                                 "session_id": result.session_id, "subtype": result.subtype})
         reply = (result.result or "\n".join(texts)).strip()
         return TurnRecord(turn.turn, turn.session, *tok, len(usage_by_call), tools, cost,
-                          round(time.perf_counter() - started, 2), self.compacted, reply[:300])
+                          round(time.perf_counter() - started, 2), self.compacted, reply[:300], w1h)

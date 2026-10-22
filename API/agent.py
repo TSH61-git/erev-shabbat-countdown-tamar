@@ -62,4 +62,5 @@ class ApiAgent:
         s = self.meter.turn_summary(turn.turn)
         return TurnRecord(turn.turn, turn.session, s["input"], s["cache_read"], s["cache_write"],
                           s["output"], s["model_calls"], outcome.tools, s["cost_usd"],
-                          round(time.perf_counter() - started, 2), compacted, outcome.text[:300])
+                          round(time.perf_counter() - started, 2), compacted, outcome.text[:300],
+                          s["cache_write_1h"])

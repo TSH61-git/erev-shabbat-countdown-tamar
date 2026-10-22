@@ -17,6 +17,7 @@ class CallUsage:
     cache_write: int
     output: int
     cost: float
+    cache_write_1h: int = 0
 
     @property
     def prompt(self) -> int:
@@ -35,7 +36,11 @@ class TokenMeter:
 
         u = (get("input_tokens"), get("cache_read_input_tokens"),
              get("cache_creation_input_tokens"), get("output_tokens"))
-        call = CallUsage(turn, *u, cost=cost_usd(self.model, *u))
+        # caching.py asks for 5-minute entries; read the split anyway so a 1-hour
+        # write could never be priced at the cheaper rate.
+        w1h = getattr(getattr(usage, "cache_creation", None), "ephemeral_1h_input_tokens", 0) or 0
+        call = CallUsage(turn, *u, cost=cost_usd(self.model, *u, cache_write_1h=w1h),
+                         cache_write_1h=w1h)
         self.calls.append(call)
         log(f"call: in={call.input:,} cache_r={call.cache_read:,} cache_w={call.cache_write:,} "
             f"out={call.output:,} ${call.cost:.4f}")
@@ -49,6 +54,7 @@ class TokenMeter:
         calls = [c for c in self.calls if c.turn == turn]
         s = {"input": sum(c.input for c in calls), "cache_read": sum(c.cache_read for c in calls),
              "cache_write": sum(c.cache_write for c in calls), "output": sum(c.output for c in calls),
+             "cache_write_1h": sum(c.cache_write_1h for c in calls),
              "model_calls": len(calls), "cost_usd": round(sum(c.cost for c in calls), 6)}
         log(f"turn {turn} total: {s['model_calls']} calls, in={s['input']:,} "
             f"cache_r={s['cache_read']:,} cache_w={s['cache_write']:,} out={s['output']:,} "

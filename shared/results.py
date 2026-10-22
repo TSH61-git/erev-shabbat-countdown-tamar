@@ -29,10 +29,12 @@ class TurnRecord:
     seconds: float = 0.0
     compacted: bool = False
     reply_preview: str = ""
+    cache_write_1h: int = 0
 
     def to_dict(self) -> dict:
         d = asdict(self)
-        d["tokens"] = {k: d.pop(k) for k in ("input", "cache_read", "cache_write", "output")}
+        d["tokens"] = {k: d.pop(k) for k in ("input", "cache_read", "cache_write", "cache_write_1h",
+                                              "output")}
         return d
 
 
@@ -59,10 +61,10 @@ def sdk_loc(sdk_dir: Path) -> dict[str, int]:
 
 def totals(turns: list[TurnRecord]) -> dict:
     t = {k: sum(getattr(r, k) for r in turns)
-         for k in ("input", "cache_read", "cache_write", "output", "model_calls")}
+         for k in ("input", "cache_read", "cache_write", "cache_write_1h", "output", "model_calls")}
     prompt = t["input"] + t["cache_read"] + t["cache_write"]
     return {
-        "tokens": {k: t[k] for k in ("input", "cache_read", "cache_write", "output")},
+        "tokens": {k: t[k] for k in ("input", "cache_read", "cache_write", "cache_write_1h", "output")},
         "cache_read_pct": round(100 * t["cache_read"] / prompt, 1) if prompt else 0.0,
         "model_calls": t["model_calls"],
         "cost_usd": round(sum(r.cost_usd for r in turns), 6),
