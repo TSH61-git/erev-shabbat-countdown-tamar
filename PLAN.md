@@ -87,11 +87,8 @@ erev-shabbat-countdown-tamar/
     test_memory_files.py     two memory layers, expiry, overrides never touch templates
     test_tools_impl.py       compact outputs, validation errors
     test_api_loop.py         fake Anthropic client: loop, parallel tool results, errors, refusal
-    test_api_history.py      append-only, reload, compaction marker
-    test_api_compaction.py   trigger, summary request shape, safe shape (no old thinking blocks)
-    test_api_caching.py      breakpoint count/placement, stable system bytes, stored history untouched
-    test_api_tokens.py       cost math, per-turn aggregation
-    test_api_context.py      context block content, no full task list
+    test_api_harness_parts.py history (append-only, reload, compaction marker), caching (breakpoints on a copy), tokens (cost math), tool defs
+    test_api_context_compaction.py memory layers + expiry, context block (summary only), compaction trigger and safe shape
     test_api_e2e.py          full scenario with fake client + fake Hebcal -> results file shape
     test_sdk_options.py      options builder fields, API-key warning, tool wrappers (no CLI launched)
     test_checks.py           each check passes on a good state and fails on a crafted bad state
