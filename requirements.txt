@@ -3,3 +3,4 @@ claude-agent-sdk==0.2.172
 requests==2.34.2
 pytest==9.1.1
 pytest-asyncio==1.4.0
+truststore==0.10.5
