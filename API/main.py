@@ -49,14 +49,59 @@ def run(scenario_path: str, out_path: str, client: object, data_dir: str | None 
     return results
 
 
+def preflight(client: object) -> int:
+    from datetime import datetime
+
+    from shared.scenario import Turn
+    store = reset_state(config.DATA_ROOT / "api-preflight")
+    agent = ApiAgent(client, store, session=1, compact_threshold=10**9)
+    base = agent.base_request([{"role": "user", "content": "hi"}])
+    counted = client.messages.count_tokens(
+        model=base["model"], system=base["system"], tools=base["tools"],
+        thinking=base["thinking"], messages=base["messages"]).input_tokens
+    log(f"preflight: system + tools + 'hi' = {counted:,} tokens (Opus 5.5 caches from 512)")
+    now = datetime(2026, 10, 29, 9, 0)
+    for n, text in [(1, "Before we start: list my saved tasks."), (2, "Thanks, that's all for now.")]:
+        record = agent.ask(Turn(1, n, now, "2026-10-30", text))
+        log(f"preflight turn {n} reply: {record.reply_preview[:100]!r}")
+    calls = agent.meter.calls
+    cached = all(c.cache_read > 0 for c in calls[1:])
+    log(f"preflight: {len(calls)} calls, cache read on every call after the first: {cached}; "
+        f"history with thinking blocks replayed without error: True; "
+        f"cost ${sum(c.cost for c in calls):.4f}")
+    return 0 if counted >= 512 and cached else 1
+
+
+class _Tee:
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, s: str) -> int:
+        for st in self.streams:
+            st.write(s)
+        return len(s)
+
+    def flush(self) -> None:
+        for st in self.streams:
+            st.flush()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Erev Shabbat Countdown on the raw Messages API")
-    parser.add_argument("--scenario", required=True)
-    parser.add_argument("--out", required=True)
+    parser.add_argument("--scenario")
+    parser.add_argument("--out")
     parser.add_argument("--data-dir")
     parser.add_argument("--compact-threshold", type=int, default=DEFAULT_COMPACT_THRESHOLD)
+    parser.add_argument("--preflight", action="store_true",
+                        help="3 small paid calls: prefix size, caching, history replay")
+    parser.add_argument("--log", help="also write all output to this file (UTF-8)")
     args = parser.parse_args()
+    if not args.preflight and not (args.scenario and args.out):
+        parser.error("--scenario and --out are required (or use --preflight)")
     sys.stdout.reconfigure(encoding="utf-8")
+    if args.log:
+        Path(args.log).parent.mkdir(parents=True, exist_ok=True)
+        sys.stdout = _Tee(sys.stdout, open(args.log, "w", encoding="utf-8"))
     if not os.environ.get("ANTHROPIC_API_KEY"):
         log("ANTHROPIC_API_KEY is not set. Set it in this terminal only, never in a file:")
         log('  PowerShell:  $env:ANTHROPIC_API_KEY = "sk-ant-..."')
@@ -66,7 +111,17 @@ def main() -> int:
     use_os_trust_store()
     import anthropic
     client = anthropic.Anthropic(max_retries=3)
-    run(args.scenario, args.out, client, args.data_dir, compact_threshold=args.compact_threshold)
+    try:
+        if args.preflight:
+            return preflight(client)
+        run(args.scenario, args.out, client, args.data_dir, compact_threshold=args.compact_threshold)
+    except anthropic.APIStatusError as e:
+        message = (e.body or {}).get("error", {}).get("message", str(e)) if isinstance(e.body, dict) else str(e)
+        log(f"API error {e.status_code}: {message} (request_id {e.request_id})")
+        return 1
+    except anthropic.APIConnectionError as e:
+        log(f"cannot reach the API: {e.__cause__ or e}")
+        return 1
     return 0
 
 

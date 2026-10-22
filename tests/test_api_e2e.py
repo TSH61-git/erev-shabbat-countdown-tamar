@@ -68,3 +68,13 @@ def test_full_scenario_offline(tmp_path, capsys):
     for tag in ["loop.py", "tools.py", "history.py", "memory.py", "context.py", "compaction.py",
                 "caching.py", "tokens.py", "agent.py", "main.py"]:
         assert any(l.startswith(f"[{tag}]") for l in lines), tag
+
+
+def test_preflight_offline(tmp_path, monkeypatch, capsys):
+    from API.main import preflight
+    from shared import config
+    monkeypatch.setattr(config, "DATA_ROOT", tmp_path / "data")
+    assert preflight(FakeAnthropicClient([IdealModel()] * 10)) == 0
+    out = capsys.readouterr().out
+    assert "cache read on every call after the first: True" in out
+    assert (tmp_path / "data" / "api-preflight" / "history.jsonl").exists()

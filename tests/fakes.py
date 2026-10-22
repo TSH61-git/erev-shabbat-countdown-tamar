@@ -57,6 +57,10 @@ class FakeMessages:
         item = self.script.pop(0)
         return item(request) if callable(item) else item
 
+    def count_tokens(self, **request):
+        from types import SimpleNamespace
+        return SimpleNamespace(input_tokens=len(str(request)) // 4)
+
 
 class FakeAnthropicClient:
     def __init__(self, script: list):
