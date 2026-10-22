@@ -8,195 +8,188 @@
 [context.py] context 156 chars: profile, 0 overrides, 0-task summary (task list stays behind list_tasks)
 [history.py] append user (2 blocks) seq=2
 [caching.py] breakpoints: system, msg[0].content[-1]
-[tokens.py] call: in=4 cache_r=0 cache_w=4,090 out=165 $0.0238
+[tokens.py] call: in=4 cache_r=0 cache_w=4,108 out=165 $0.0239
 [history.py] append assistant (1 blocks) seq=3
 [loop.py] turn 1 call 1: stop_reason=tool_use (1 tool_use)
 [tools.py] dispatch update_profile {"city": "Jerusalem", "ready_buffer_min": 10, "friday_start": "12:00", "thursday_night_start": "20:0...
 [tools.py] update_profile ok (1 lines, 69 chars)
 [history.py] append user (1 blocks) seq=4
 [caching.py] breakpoints: system, msg[2].content[-1]
-[tokens.py] call: in=2 cache_r=4,090 cache_w=209 out=102 $0.0039
+[tokens.py] call: in=2 cache_r=4,108 cache_w=209 out=242 $0.0067
 [history.py] append assistant (2 blocks) seq=5
-[loop.py] turn 1 call 2: stop_reason=tool_use (1 tool_use)
-[tools.py] dispatch get_shabbat_times {"friday_date": "2026-10-30"}
-[tools.py] get_shabbat_times ok (1 lines, 73 chars)
-[history.py] append user (1 blocks) seq=6
-[caching.py] breakpoints: system, msg[4].content[-1]
-[tokens.py] call: in=2 cache_r=4,299 cache_w=149 out=246 $0.0065
-[history.py] append assistant (1 blocks) seq=7
-[loop.py] turn 1 call 3: stop_reason=end_turn
-[tokens.py] turn 1 total: 3 calls, in=8 cache_r=8,389 cache_w=4,448 out=513 $0.0342
-[main.py] turn 1 reply: "I've saved your settings: Jerusalem, ready 10 minutes before candle lighting, Friday prep from 12:00, and Thursday night"
+[loop.py] turn 1 call 2: stop_reason=end_turn
+[tokens.py] turn 1 total: 2 calls, in=6 cache_r=4,108 cache_w=4,317 out=407 $0.0306
+[main.py] turn 1 reply: 'Your profile is saved:\n- **City:** Jerusalem\n- **Ready:** 10 minutes before candle lighting\n- **Friday start:** 12:00\n- '
 [agent.py] turn 2 (session 1) at 2026-10-29 09:05
-[compaction.py] last prompt 4,450 tokens <= 8,000, no compaction
+[compaction.py] last prompt 4,319 tokens <= 8,000, no compaction
 [memory.py] permanent: profile Jerusalem/10, 0 tasks, 0 checklist items, 0 learned
 [memory.py] week 2026-10-30: 0 overrides
 [context.py] context 228 chars: profile, 0 overrides, 0-task summary (task list stays behind list_tasks)
-[history.py] append user (2 blocks) seq=8
-[caching.py] breakpoints: system, msg[6].content[-1]
-[tokens.py] call: in=4 cache_r=4,448 cache_w=750 out=613 $0.0169
-[history.py] append assistant (1 blocks) seq=9
+[history.py] append user (2 blocks) seq=6
+[caching.py] breakpoints: system, msg[4].content[-1]
+[tokens.py] call: in=4 cache_r=4,317 cache_w=746 out=613 $0.0169
+[history.py] append assistant (1 blocks) seq=7
 [loop.py] turn 2 call 1: stop_reason=tool_use (1 tool_use)
 [tools.py] dispatch upsert_tasks {"tasks": [{"name": "shopping", "minutes": 50, "kind": "active", "priority": "must", "depends_on": [...
 [tools.py] upsert_tasks ok (1 lines, 31 chars)
-[history.py] append user (1 blocks) seq=10
-[caching.py] breakpoints: system, msg[8].content[-1]
-[tokens.py] call: in=2 cache_r=5,198 cache_w=692 out=120 $0.0069
-[history.py] append assistant (2 blocks) seq=11
-[loop.py] turn 2 call 2: stop_reason=tool_use (1 tool_use)
-[tools.py] dispatch build_timeline {"friday_date": "2026-10-30"}
-[tools.py] build_timeline ok (13 lines, 431 chars)
-[history.py] append user (1 blocks) seq=12
-[caching.py] breakpoints: system, msg[10].content[-1]
-[tokens.py] call: in=2 cache_r=5,890 cache_w=354 out=366 $0.0103
-[history.py] append assistant (2 blocks) seq=13
-[loop.py] turn 2 call 3: stop_reason=end_turn
-[tokens.py] turn 2 total: 3 calls, in=8 cache_r=15,536 cache_w=1,796 out=1,099 $0.0341
-[main.py] turn 2 reply: "I've saved all 10 tasks. Here's this Friday's plan:\n\n```\nFri 2026-10-30 candles 16:11 ready 16:01 | start 12:00 | slack "
+[history.py] append user (1 blocks) seq=8
+[caching.py] breakpoints: system, msg[6].content[-1]
+[tokens.py] call: in=2 cache_r=5,063 cache_w=692 out=144 $0.0074
+[history.py] append assistant (2 blocks) seq=9
+[loop.py] turn 2 call 2: stop_reason=end_turn
+[tokens.py] turn 2 total: 2 calls, in=6 cache_r=9,380 cache_w=1,438 out=757 $0.0242
+[main.py] turn 2 reply: "I've saved all 10 tasks. Set_table has to be done by 15:00, and shower is always the last task before the checklist.\n\nWh"
 [agent.py] turn 3 (session 1) at 2026-10-29 09:10
-[compaction.py] last prompt 6,246 tokens <= 8,000, no compaction
+[compaction.py] last prompt 5,757 tokens <= 8,000, no compaction
 [memory.py] permanent: profile Jerusalem/10, 10 tasks, 0 checklist items, 0 learned
 [memory.py] week 2026-10-30: 0 overrides
 [context.py] context 229 chars: profile, 0 overrides, 10-task summary (task list stays behind list_tasks)
-[history.py] append user (2 blocks) seq=14
-[caching.py] breakpoints: system, msg[12].content[-1]
-[tokens.py] call: in=4 cache_r=6,244 cache_w=533 out=187 $0.0077
-[history.py] append assistant (2 blocks) seq=15
+[history.py] append user (2 blocks) seq=10
+[caching.py] breakpoints: system, msg[8].content[-1]
+[tokens.py] call: in=4 cache_r=5,755 cache_w=311 out=190 $0.0065
+[history.py] append assistant (2 blocks) seq=11
 [loop.py] turn 3 call 1: stop_reason=tool_use (2 tool_use)
 [tools.py] dispatch set_checklist {"items": [{"text": "turn off the phone", "minutes": 2}, {"text": "set the alarm", "minutes": 2}, {"...
 [tools.py] set_checklist ok (1 lines, 26 chars)
+[tools.py] dispatch get_shabbat_times {"friday_date": "2026-10-30"}
+[tools.py] get_shabbat_times ok (1 lines, 73 chars)
+[history.py] append user (2 blocks) seq=12
+[caching.py] breakpoints: system, msg[10].content[-1]
+[tokens.py] call: in=2 cache_r=6,066 cache_w=314 out=57 $0.0039
+[history.py] append assistant (1 blocks) seq=13
+[loop.py] turn 3 call 2: stop_reason=tool_use (1 tool_use)
 [tools.py] dispatch build_timeline {"friday_date": "2026-10-30"}
 [tools.py] build_timeline ok (13 lines, 497 chars)
-[history.py] append user (2 blocks) seq=16
-[caching.py] breakpoints: system, msg[14].content[-1]
-[tokens.py] call: in=2 cache_r=6,777 cache_w=520 out=408 $0.0121
-[history.py] append assistant (2 blocks) seq=17
-[loop.py] turn 3 call 2: stop_reason=end_turn
-[tokens.py] turn 3 total: 2 calls, in=6 cache_r=13,021 cache_w=1,053 out=595 $0.0198
-[main.py] turn 3 reply: "I saved the checklist (4 items, 10 minutes total). Here's the updated plan:\n\n```\nFri 2026-10-30 candles 16:11 ready 16:0"
+[history.py] append user (1 blocks) seq=14
+[caching.py] breakpoints: system, msg[12].content[-1]
+[tokens.py] call: in=2 cache_r=6,380 cache_w=316 out=419 $0.0112
+[history.py] append assistant (2 blocks) seq=15
+[loop.py] turn 3 call 3: stop_reason=end_turn
+[tokens.py] turn 3 total: 3 calls, in=8 cache_r=18,201 cache_w=941 out=666 $0.0217
+[main.py] turn 3 reply: "I saved your 4-item checklist (10 minutes total) and built this Friday's plan. Candle lighting in Jerusalem is 16:11 and"
 [agent.py] turn 4 (session 1) at 2026-10-29 09:15
-[compaction.py] last prompt 7,299 tokens <= 8,000, no compaction
+[compaction.py] last prompt 6,698 tokens <= 8,000, no compaction
 [memory.py] permanent: profile Jerusalem/10, 10 tasks, 4 checklist items, 0 learned
 [memory.py] week 2026-10-30: 0 overrides
 [context.py] context 229 chars: profile, 0 overrides, 10-task summary (task list stays behind list_tasks)
-[history.py] append user (2 blocks) seq=18
-[caching.py] breakpoints: system, msg[16].content[-1]
-[tokens.py] call: in=4 cache_r=7,297 cache_w=531 out=82 $0.0058
-[history.py] append assistant (2 blocks) seq=19
+[history.py] append user (2 blocks) seq=16
+[caching.py] breakpoints: system, msg[14].content[-1]
+[tokens.py] call: in=4 cache_r=6,696 cache_w=542 out=95 $0.0060
+[history.py] append assistant (2 blocks) seq=17
 [loop.py] turn 4 call 1: stop_reason=tool_use (1 tool_use)
 [tools.py] dispatch build_timeline {"friday_date": "2026-10-30"}
 [tools.py] build_timeline ok (13 lines, 497 chars)
-[history.py] append user (1 blocks) seq=20
-[caching.py] breakpoints: system, msg[18].content[-1]
-[tokens.py] call: in=2 cache_r=7,828 cache_w=343 out=347 $0.0102
-[history.py] append assistant (2 blocks) seq=21
+[history.py] append user (1 blocks) seq=18
+[caching.py] breakpoints: system, msg[16].content[-1]
+[tokens.py] call: in=2 cache_r=7,238 cache_w=356 out=283 $0.0089
+[history.py] append assistant (1 blocks) seq=19
 [loop.py] turn 4 call 2: stop_reason=end_turn
-[tokens.py] turn 4 total: 2 calls, in=6 cache_r=15,125 cache_w=874 out=429 $0.0160
-[main.py] turn 4 reply: '```\nFri 2026-10-30 candles 16:11 ready 16:01 | start 12:00 | slack 6\n12:00-12:50 Shopping (active)\n12:50-13:05 Cooking ('
+[tokens.py] turn 4 total: 2 calls, in=6 cache_r=13,934 cache_w=898 out=378 $0.0149
+[main.py] turn 4 reply: "Here's your plan for Friday. It fits, with 6 minutes to spare:\n\nFri 2026-10-30 candles 16:11 ready 16:01 | start 12:00 |"
 [agent.py] turn 5 (session 1) at 2026-10-31 19:00
-[compaction.py] last prompt 8,173 tokens > 8,000 -> compacting
-[tokens.py] call: in=3,406 cache_r=0 cache_w=0 out=398 $0.0216
-[history.py] compaction marker seq=22 covers 2-21
-[compaction.py] summarized 20 messages (7,107 chars) into 755 chars; the next request starts from the summary
+[compaction.py] last prompt 7,596 tokens <= 8,000, no compaction
 [memory.py] permanent: profile Jerusalem/10, 10 tasks, 4 checklist items, 0 learned
 [memory.py] week 2026-10-30: 0 overrides
 [context.py] context 229 chars: profile, 0 overrides, 10-task summary (task list stays behind list_tasks)
-[history.py] append user (2 blocks) seq=23
-[caching.py] breakpoints: system, msg[0].content[-1]
-[tokens.py] call: in=4 cache_r=3,886 cache_w=497 out=136 $0.0060
-[history.py] append assistant (2 blocks) seq=24
+[history.py] append user (2 blocks) seq=20
+[caching.py] breakpoints: system, msg[18].content[-1]
+[tokens.py] call: in=4 cache_r=7,594 cache_w=421 out=115 $0.0059
+[history.py] append assistant (1 blocks) seq=21
 [loop.py] turn 5 call 1: stop_reason=tool_use (1 tool_use)
-[tools.py] dispatch list_tasks {}
-[tools.py] list_tasks ok (11 lines, 461 chars)
-[history.py] append user (1 blocks) seq=25
-[caching.py] breakpoints: system, msg[2].content[-1]
-[tokens.py] call: in=2 cache_r=4,383 cache_w=333 out=179 $0.0061
-[history.py] append assistant (2 blocks) seq=26
-[loop.py] turn 5 call 2: stop_reason=tool_use (1 tool_use)
 [tools.py] dispatch log_actuals {"friday_date": "2026-10-30", "entries": [{"task": "challah", "minutes": 90}, {"task": "cleaning", "...
 [tools.py] log_actuals ok (1 lines, 40 chars)
-[history.py] append user (1 blocks) seq=27
-[caching.py] breakpoints: system, msg[4].content[-1]
-[tokens.py] call: in=2 cache_r=4,716 cache_w=209 out=290 $0.0078
-[history.py] append assistant (2 blocks) seq=28
-[loop.py] turn 5 call 3: stop_reason=end_turn
-[tokens.py] turn 5 total: 4 calls, in=3,414 cache_r=12,985 cache_w=1,039 out=1,003 $0.0415
-[main.py] turn 5 reply: "I've saved last Friday's (2026-10-30) times:\n- **challah:** 60 → 90 min. I logged this to the hands-on challah step only"
-[history.py] session 2 start, 28 earlier records on disk
-[agent.py] new agent instance for session 2; 6 messages reloaded from disk
+[history.py] append user (1 blocks) seq=22
+[caching.py] breakpoints: system, msg[20].content[-1]
+[tokens.py] call: in=2 cache_r=8,015 cache_w=142 out=214 $0.0066
+[history.py] append assistant (2 blocks) seq=23
+[loop.py] turn 5 call 2: stop_reason=end_turn
+[tokens.py] turn 5 total: 2 calls, in=6 cache_r=15,609 cache_w=563 out=329 $0.0125
+[main.py] turn 5 reply: 'I saved your times for last Friday. Future plans will now use 90 minutes for challah instead of 60, and 40 minutes for c'
+[history.py] session 2 start, 23 earlier records on disk
+[agent.py] new agent instance for session 2; 22 messages reloaded from disk
 [agent.py] turn 6 (session 2) at 2026-11-05 09:00
-[compaction.py] last prompt 4,927 tokens <= 8,000, no compaction
+[compaction.py] last prompt 8,159 tokens > 8,000 -> compacting
+[tokens.py] call: in=3,280 cache_r=0 cache_w=0 out=616 $0.0254
+[history.py] compaction marker seq=25 covers 2-23
+[compaction.py] summarized 22 messages (7,013 chars) into 867 chars; the next request starts from the summary
 [memory.py] permanent: profile Jerusalem/10, 10 tasks, 4 checklist items, 2 learned
 [memory.py] week 2026-11-06: 0 overrides
 [context.py] context 229 chars: profile, 0 overrides, 10-task summary (task list stays behind list_tasks)
-[history.py] append user (2 blocks) seq=30
-[caching.py] breakpoints: system, msg[6].content[-1]
-[tokens.py] call: in=4 cache_r=4,925 cache_w=412 out=60 $0.0043
-[history.py] append assistant (1 blocks) seq=31
+[history.py] append user (2 blocks) seq=26
+[caching.py] breakpoints: system, msg[0].content[-1]
+[tokens.py] call: in=4 cache_r=3,904 cache_w=508 out=60 $0.0045
+[history.py] append assistant (1 blocks) seq=27
 [loop.py] turn 6 call 1: stop_reason=tool_use (1 tool_use)
 [tools.py] dispatch get_shabbat_times {"friday_date": "2026-11-06"}
 [tools.py] get_shabbat_times ok (1 lines, 78 chars)
-[history.py] append user (1 blocks) seq=32
-[caching.py] breakpoints: system, msg[8].content[-1]
-[tokens.py] call: in=2 cache_r=5,337 cache_w=112 out=57 $0.0028
-[history.py] append assistant (1 blocks) seq=33
+[history.py] append user (1 blocks) seq=28
+[caching.py] breakpoints: system, msg[2].content[-1]
+[tokens.py] call: in=2 cache_r=4,412 cache_w=112 out=57 $0.0026
+[history.py] append assistant (1 blocks) seq=29
 [loop.py] turn 6 call 2: stop_reason=tool_use (1 tool_use)
 [tools.py] dispatch build_timeline {"friday_date": "2026-11-06"}
 [tools.py] build_timeline ok (14 lines, 622 chars)
-[history.py] append user (1 blocks) seq=34
-[caching.py] breakpoints: system, msg[10].content[-1]
-[tokens.py] call: in=2 cache_r=5,449 cache_w=375 out=400 $0.0110
-[history.py] append assistant (2 blocks) seq=35
+[history.py] append user (1 blocks) seq=30
+[caching.py] breakpoints: system, msg[4].content[-1]
+[tokens.py] call: in=2 cache_r=4,524 cache_w=375 out=512 $0.0130
+[history.py] append assistant (2 blocks) seq=31
 [loop.py] turn 6 call 3: stop_reason=end_turn
-[tokens.py] turn 6 total: 3 calls, in=8 cache_r=15,711 cache_w=899 out=517 $0.0180
-[main.py] turn 6 reply: "Friday's plan doesn't fit by 20 minutes. Candles are at 16:05, so you need to be ready by 15:55.\n\n**Suggestion:** do the"
+[tokens.py] turn 6 total: 4 calls, in=3,288 cache_r=12,840 cache_w=995 out=1,245 $0.0456
+[main.py] turn 6 reply: "This Friday doesn't fit. You're 20 minutes short, mostly because challah and cleaning have been taking longer in real we"
 [agent.py] turn 7 (session 2) at 2026-11-05 09:10
-[compaction.py] last prompt 5,826 tokens <= 8,000, no compaction
+[compaction.py] last prompt 4,901 tokens <= 8,000, no compaction
 [memory.py] permanent: profile Jerusalem/10, 10 tasks, 4 checklist items, 2 learned
 [memory.py] week 2026-11-06: 0 overrides
 [context.py] context 229 chars: profile, 0 overrides, 10-task summary (task list stays behind list_tasks)
-[history.py] append user (2 blocks) seq=36
-[caching.py] breakpoints: system, msg[12].content[-1]
-[tokens.py] call: in=4 cache_r=5,824 cache_w=550 out=408 $0.0121
-[history.py] append assistant (3 blocks) seq=37
+[history.py] append user (2 blocks) seq=32
+[caching.py] breakpoints: system, msg[6].content[-1]
+[tokens.py] call: in=4 cache_r=4,899 cache_w=662 out=232 $0.0089
+[history.py] append assistant (3 blocks) seq=33
 [loop.py] turn 7 call 1: stop_reason=tool_use (2 tool_use)
 [tools.py] dispatch set_week_override {"friday_date": "2026-11-06", "change": {"type": "move_to_thursday", "tasks": ["cleaning"]}, "note":...
 [tools.py] set_week_override ok (1 lines, 129 chars)
-[tools.py] dispatch set_week_override {"friday_date": "2026-11-06", "change": {"type": "skip_tags", "tags": ["dinner"]}, "note": "guests F...
-[tools.py] set_week_override ok (1 lines, 152 chars)
-[history.py] append user (2 blocks) seq=38
-[caching.py] breakpoints: system, msg[14].content[-1]
-[tokens.py] call: in=2 cache_r=6,374 cache_w=590 out=57 $0.0054
-[history.py] append assistant (1 blocks) seq=39
+[tools.py] dispatch list_tasks {}
+[tools.py] list_tasks ok (11 lines, 463 chars)
+[history.py] append user (2 blocks) seq=34
+[caching.py] breakpoints: system, msg[8].content[-1]
+[tokens.py] call: in=2 cache_r=5,561 cache_w=539 out=209 $0.0080
+[history.py] append assistant (2 blocks) seq=35
 [loop.py] turn 7 call 2: stop_reason=tool_use (1 tool_use)
+[tools.py] dispatch set_week_override {"change": {"tags": ["dinner"], "type": "skip_tags"}, "friday_date": "2026-11-06", "note": "guests F...
+[tools.py] set_week_override ok (1 lines, 152 chars)
+[history.py] append user (1 blocks) seq=36
+[caching.py] breakpoints: system, msg[10].content[-1]
+[tokens.py] call: in=2 cache_r=6,100 cache_w=281 out=57 $0.0038
+[history.py] append assistant (1 blocks) seq=37
+[loop.py] turn 7 call 3: stop_reason=tool_use (1 tool_use)
 [tools.py] dispatch build_timeline {"friday_date": "2026-11-06"}
 [tools.py] build_timeline ok (12 lines, 476 chars)
-[history.py] append user (1 blocks) seq=40
-[caching.py] breakpoints: system, msg[16].content[-1]
-[tokens.py] call: in=2 cache_r=6,964 cache_w=302 out=499 $0.0129
-[history.py] append assistant (2 blocks) seq=41
-[loop.py] turn 7 call 3: stop_reason=end_turn
-[tokens.py] turn 7 total: 3 calls, in=8 cache_r=19,162 cache_w=1,442 out=964 $0.0304
-[main.py] turn 7 reply: 'I saved both changes for this Friday only. Your saved tasks stay as they are.\n- **Cleaning** is moved to tonight, Thursd'
+[history.py] append user (1 blocks) seq=38
+[caching.py] breakpoints: system, msg[12].content[-1]
+[tokens.py] call: in=2 cache_r=6,381 cache_w=302 out=460 $0.0120
+[history.py] append assistant (2 blocks) seq=39
+[loop.py] turn 7 call 4: stop_reason=end_turn
+[tokens.py] turn 7 total: 4 calls, in=10 cache_r=22,941 cache_w=1,784 out=958 $0.0327
+[main.py] turn 7 reply: 'I saved both changes for this Friday only. Your saved tasks stay as they are.\n\n- **Cleaning** moves to tonight, 20:00–20'
 [agent.py] turn 8 (session 2) at 2026-11-06 13:00
-[compaction.py] last prompt 7,268 tokens <= 8,000, no compaction
+[compaction.py] last prompt 6,685 tokens <= 8,000, no compaction
 [memory.py] permanent: profile Jerusalem/10, 10 tasks, 4 checklist items, 2 learned
 [memory.py] week 2026-11-06: 2 overrides
 [context.py] context 273 chars: profile, 2 overrides, 10-task summary (task list stays behind list_tasks)
-[history.py] append user (2 blocks) seq=42
-[caching.py] breakpoints: system, msg[18].content[-1]
-[tokens.py] call: in=4 cache_r=7,266 cache_w=651 out=113 $0.0070
-[history.py] append assistant (1 blocks) seq=43
+[history.py] append user (2 blocks) seq=40
+[caching.py] breakpoints: system, msg[14].content[-1]
+[tokens.py] call: in=4 cache_r=6,683 cache_w=612 out=113 $0.0067
+[history.py] append assistant (1 blocks) seq=41
 [loop.py] turn 8 call 1: stop_reason=tool_use (1 tool_use)
 [tools.py] dispatch build_timeline {"friday_date": "2026-11-06", "now": "2026-11-06T13:00", "delay_minutes": 40}
 [tools.py] build_timeline ok (10 lines, 433 chars)
-[history.py] append user (1 blocks) seq=44
-[caching.py] breakpoints: system, msg[20].content[-1]
-[tokens.py] call: in=2 cache_r=7,917 cache_w=337 out=228 $0.0078
-[history.py] append assistant (2 blocks) seq=45
+[history.py] append user (1 blocks) seq=42
+[caching.py] breakpoints: system, msg[16].content[-1]
+[tokens.py] call: in=2 cache_r=7,295 cache_w=337 out=337 $0.0099
+[history.py] append assistant (2 blocks) seq=43
 [loop.py] turn 8 call 2: stop_reason=end_turn
-[tokens.py] turn 8 total: 2 calls, in=6 cache_r=15,183 cache_w=988 out=341 $0.0148
-[main.py] turn 8 reply: "You'll still be ready by 15:55, with 10 minutes to spare. To make that work I dropped **flowers**, and the optional shor"
+[tokens.py] turn 8 total: 2 calls, in=6 cache_r=13,978 cache_w=949 out=450 $0.0166
+[main.py] turn 8 reply: 'You still have time. I dropped **flowers**, your only nice-to-have, and the short break is gone too. You now have 10 min'
 [main.py] check 1 PASS: city and buffer saved (Jerusalem/10)
 [main.py] check 2 PASS: checklist saved and last in timeline (4 items, 10 min, missing none, last block is checklist: True)
 [main.py] check 3 PASS: learned challah duration (learned {'challah': 90})
@@ -204,4 +197,4 @@
 [main.py] check 5 PASS: week overrides only for their Friday, templates unchanged (move: True, dinner skip: True, templates {'cleaning': 50, 'cooking': 15, 'slow_cook': 150})
 [main.py] check 6 PASS: final timeline valid (turn 8: valid)
 [main.py] check 7 PASS: external tool called (2 successful get_shabbat_times calls)
-[main.py] wrote results\api.json: checks 7/7, 22 model calls, cache read 87.8%, $0.2088
+[main.py] wrote results\api.json: checks 7/7, 21 model calls, cache read 87.9%, $0.1988

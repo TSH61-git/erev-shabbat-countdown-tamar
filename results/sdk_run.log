@@ -1,0 +1,43 @@
+[main.py] clean state in C:\Users\User\Desktop\Tamush\1\erev-shabbat-countdown-tamar\data\sdk; 8 turns in 2 sessions
+[agent.py] session 1: Claude Code started in C:\Users\User\Desktop\Tamush\1\erev-shabbat-countdown-tamar\data\sdk\workspace
+[agent.py] turn 1 (session 1) at 2026-10-29 09:00
+[agent.py] context hook: 156 chars added to the prompt
+[agent.py] turn 1: 3 model calls (num_turns=3), in=6 cache_r=15,576 cache_w=380 (1h 380) out=475, helper claude-haiku-5-5: in=1,224 out=212, $0.0159 by our prices, $0.0159 reported by the SDK
+[main.py] turn 1 reply: 'Your profile is saved: Jerusalem, ready 10 minutes before candle lighting, Friday start 12:00, Thursday night free 20:00'
+[agent.py] turn 2 (session 1) at 2026-10-29 09:05
+[agent.py] context hook: 228 chars added to the prompt
+[agent.py] turn 2: 2 model calls (num_turns=2), in=4 cache_r=11,761 cache_w=1,500 (1h 1,500) out=725, $0.0289 by our prices, $0.0289 reported by the SDK
+[main.py] turn 2 reply: 'I saved all 10 tasks: shopping, challah, challah_rise, challah_bake, cooking, slow_cook, cleaning, set_table, flowers an'
+[agent.py] turn 3 (session 1) at 2026-10-29 09:10
+[agent.py] context hook: 229 chars added to the prompt
+[agent.py] turn 3: 2 model calls (num_turns=3), in=4 cache_r=14,295 cache_w=885 (1h 885) out=611, $0.0222 by our prices, $0.0222 reported by the SDK
+[main.py] turn 3 reply: "Your checklist is saved (10 min total). Here's the plan for this Friday:\n\n```\nFri 2026-10-30 candles 16:11 ready 16:01 |"
+[agent.py] turn 4 (session 1) at 2026-10-29 09:15
+[agent.py] context hook: 229 chars added to the prompt
+[agent.py] turn 4: 2 model calls (num_turns=2), in=4 cache_r=16,324 cache_w=947 (1h 947) out=413, $0.0191 by our prices, $0.0191 reported by the SDK
+[main.py] turn 4 reply: "Here's your plan. It's the same as before, since nothing has changed:\n\n```\nFri 2026-10-30 candles 16:11 ready 16:01 | st"
+[agent.py] turn 5 (session 1) at 2026-10-31 19:00
+[agent.py] context hook: 229 chars added to the prompt
+[agent.py] turn 5: 2 model calls (num_turns=2), in=4 cache_r=18,146 cache_w=669 (1h 669) out=324, $0.0155 by our prices, $0.0155 reported by the SDK
+[main.py] turn 5 reply: 'I saved both times for Friday 2026-10-30. Future plans will use 90 minutes for challah (was 60) and 40 for cleaning (was'
+[agent.py] session 2: Claude Code started in C:\Users\User\Desktop\Tamush\1\erev-shabbat-countdown-tamar\data\sdk\workspace, resuming ad3f93c4-9473-4a51-b142-b381121dbeac
+[agent.py] turn 6 (session 2) at 2026-11-05 09:00
+[agent.py] context hook: 229 chars added to the prompt
+[agent.py] turn 6: 3 model calls (num_turns=3), in=6 cache_r=29,888 cache_w=1,184 (1h 1,184) out=746, $0.0304 by our prices, $0.0304 reported by the SDK
+[main.py] turn 6 reply: 'Friday 2026-11-06 in Jerusalem: candle lighting is at 16:05 and havdalah at 17:23. You need to be ready by 15:55.\n\nAs it'
+[agent.py] turn 7 (session 2) at 2026-11-05 09:10
+[agent.py] context hook: 229 chars added to the prompt
+[agent.py] turn 7: 3 model calls (num_turns=4), in=6 cache_r=34,212 cache_w=1,714 (1h 1,714) out=936, $0.0393 by our prices, $0.0393 reported by the SDK
+[main.py] turn 7 reply: 'I saved both changes for this Friday only:\n- **Cleaning** moves to tonight, 20:00–20:40.\n- **Cooking and slow_cook are s'
+[agent.py] turn 8 (session 2) at 2026-11-06 13:00
+[agent.py] context hook: 273 chars added to the prompt
+[agent.py] turn 8: 2 model calls (num_turns=2), in=4 cache_r=25,490 cache_w=1,076 (1h 1,076) out=488, $0.0235 by our prices, $0.0235 reported by the SDK
+[main.py] turn 8 reply: "Here's the new plan from now. I dropped **flowers**, your only nice-to-have:\n\n```\nFri 2026-11-06 candles 16:05 ready 15:"
+[main.py] check 1 PASS: city and buffer saved (Jerusalem/10)
+[main.py] check 2 PASS: checklist saved and last in timeline (4 items, 10 min, missing none, last block is checklist: True)
+[main.py] check 3 PASS: learned challah duration (learned {'challah': 90})
+[main.py] check 4 PASS: session 2 uses learned duration (3 session-2 timelines, wrong: none)
+[main.py] check 5 PASS: week overrides only for their Friday, templates unchanged (move: True, dinner skip: True, templates {'cleaning': 50, 'cooking': 15, 'slow_cook': 150})
+[main.py] check 6 PASS: final timeline valid (turn 8: valid)
+[main.py] check 7 PASS: external tool called (2 successful get_shabbat_times calls)
+[main.py] wrote results\sdk.json: checks 7/7, 19 model calls, cache read 95.2%, $0.1947 by our prices (SDK reports $0.1947)
