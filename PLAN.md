@@ -29,6 +29,7 @@ The agent plans Erev Shabbat for one person in Jerusalem. It fetches candle ligh
 | Jerusalem | geonameid `281184`. Hebcal applies the 40-minute Jerusalem candle-lighting offset automatically; we do **not** send `b` | live response |
 | Scenario candle times | 2026-10-30: **16:11** (ready 16:01). 2026-11-06: **16:05** (ready 15:55). Both `+02:00` | live response |
 | Library versions (PyPI today) | `anthropic==2.1.0`, `claude-agent-sdk==0.2.172`, `requests==2.34.2`, `pytest==9.1.1`, `pytest-asyncio==1.4.0`; Python 3.13.3 installed | `pip index versions` |
+| Network (Phase 3) | This machine's internet goes through NetFree, which re-signs HTTPS. Python 3.13 rejects its CA (`CA cert does not include key usage extension`) for both Hebcal and api.anthropic.com. Fix: `truststore` (verify via the Windows store), called from both `main.py` files. TLS verification stays on | live test |
 | anthropic 2.x surface (Phase 0) | Sends API version `2026-10-21`. `messages.create` has `thinking`, `output_config` (`effort`: low/medium/high/xhigh/max), `tool_choice`, `cache_control`; `count_tokens` exists; `Usage` has `input_tokens`, `cache_read_input_tokens`, `cache_creation_input_tokens`, `output_tokens` | installed package introspection |
 
 ---
@@ -52,6 +53,7 @@ erev-shabbat-countdown-tamar/
     domain.py                dataclasses: Profile, Task, Anchor, ChecklistItem, WeekOverride, Block, Timeline
     memory_files.py          load/save of the two memory layers (permanent + week-only), expiry rule
     hebcal.py                get_shabbat_times(): HTTP call, parse, cache; injectable fetcher for tests
+    net.py                   use_os_trust_store(): verify TLS through the Windows certificate store (NetFree)
     scheduler.py             build_timeline(): pure deterministic scheduler (no I/O)
     tool_specs.py            the 10 tool names, descriptions, JSON input schemas (single source of truth)
     tools_impl.py            the 10 tool functions; return compact strings; raise ToolError on bad input
@@ -93,8 +95,11 @@ erev-shabbat-countdown-tamar/
     test_api_e2e.py          full scenario with fake client + fake Hebcal -> results file shape
     test_sdk_options.py      options builder fields, API-key warning, tool wrappers (no CLI launched)
     test_checks.py           each check passes on a good state and fails on a crafted bad state
+    conftest.py              blocks all real HTTP in tests (HEBCAL_LIVE=1 allows the live Hebcal test)
     fakes.py                 FakeAnthropicClient, scripted responses, FakeHebcal
     sample_data.py           the scenario task table and checklist (section 4), reused by several tests
+    scripted_run.py          the tool calls an ideal model makes in all 8 turns; gives checks a real good state
+    test_scenario_results.py scenario loader validation, LOC counting, totals, results-file fields
   results/
     api.json
     sdk.json
@@ -162,6 +167,7 @@ Override types: `skip_task{task}`, `skip_tags{tags}`, `set_minutes{task,minutes}
 
 - `times_cache.json`: `{"2026-10-30": {"candles": "16:11", "havdalah": "17:28", "parasha": "Vayera"}}`
 - `last_timeline.json`: the structured last timeline (blocks with start, end, kind, task), read by checks.
+- `timelines.jsonl`: every timeline built, with turn and session (check 4 reads the session-2 ones).
 - `tool_log.jsonl`: one line per tool invocation `{"turn": 4, "tool": "get_shabbat_times", "ok": true}`. Written by `shared/tools_impl.py`, so both versions log identically.
 - API only: `history.jsonl` (section 5). SDK only: `session.json` `{"session_id": "..."}` and `workspace/CLAUDE.md`.
 
@@ -467,7 +473,7 @@ Session 1 runs turns 1–5 in one `ClaudeSDKClient`. Its `session_id` goes to `d
   "checks": [1, 2, 3, 4, 5, 6, 7]
 }
 ```
-`now` goes only into the per-turn context block, never into the system prompt.
+`now` goes only into the per-turn context block, never into the system prompt. The loader rejects a file whose `friday` does not match `now`, turns out of order, or fewer than 6 / more than 8 turns. The `expect` block holds the values the 7 checks compare against, so the checks contain no scenario constants.
 
 **`main.py` flow (both versions):**
 1. Parse `--scenario --out` (plus `--data-dir`, `--compact-threshold`). Auth check.
@@ -532,6 +538,7 @@ Each phase ends with offline tests green and a list of suggested commits for you
 7. **Hebcal availability.** Live calls are cached per run. Tests never hit the network.
 8. **Comparison fairness.** Same model, effort, system prompt text, tool descriptions and scenario. The SDK adds its own context, which is the point of the comparison.
 9. **`anthropic` 2.x** is newer than the bundled docs (1.x). Phase 0 checks the client surface before writing harness code.
+10. **NetFree HTTPS filtering.** Solved for Python with `truststore`. The SDK runs through the Claude Code CLI, which already works on this machine, but Phase 9 confirms it from the SDK subprocess too.
 
 ## Verification (end to end)
 - `pytest -q` passes with `ANTHROPIC_API_KEY` unset and the network blocked.
