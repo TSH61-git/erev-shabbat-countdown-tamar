@@ -94,6 +94,7 @@ erev-shabbat-countdown-tamar/
     test_sdk_options.py      options builder fields, API-key warning, tool wrappers (no CLI launched)
     test_checks.py           each check passes on a good state and fails on a crafted bad state
     fakes.py                 FakeAnthropicClient, scripted responses, FakeHebcal
+    sample_data.py           the scenario task table and checklist (section 4), reused by several tests
   results/
     api.json
     sdk.json
@@ -154,7 +155,7 @@ Every JSON write uses `sort_keys=True` and a temp-file rename (deterministic byt
    {"type": "move_to_thursday", "tasks": ["cleaning"], "note": "approved"}
  ]}
 ```
-Override types: `skip_task{task}`, `skip_tags{tags}`, `set_minutes{task,minutes}`, `start_time{time}`, `move_to_thursday{tasks}`, `add_task{task-object}`.
+Override types: `skip_task{task}`, `skip_tags{tags}`, `set_minutes{task,minutes}`, `start_time{time}`, `move_to_thursday{tasks}`, `add_task{new_task: task-object}` (the new task exists for that week only).
 **Expiry rule:** a week file is "active" only while `now < friday + 1 day 23:59` (through Shabbat). Expired files stay on disk for history but are never loaded into context or the scheduler.
 
 ### Caches and logs
@@ -264,6 +265,8 @@ if none: greedy add largest candidates until overflow covered
 check Thursday window: sum(active) fits in thursday_night window, else report "still does not fit"
 ```
 
+**Stale overrides:** an override that names a task removed later with `remove_task` is ignored, not an error. The timeline lists it as `ignored override: <type> <task> (task no longer exists)`.
+
 **Live re-plan** (`now`, `delay`):
 ```
 base = build_timeline(..., now=None)                    # same deterministic plan
@@ -298,7 +301,7 @@ Friday starts at 12:00. Thursday night is 20:00-00:00.
 | Turn | Situation | Expected scheduler result |
 |---|---|---|
 | 4 | Week 1: ready 16:01, 241 min window, need 230 | **Fits, slack 6.** Shopping 12:00-12:50, cooking 12:50-13:05, challah 13:05-14:05, shower 15:31-15:51, checklist 15:51-16:01 |
-| 6 | Week 2: ready 15:55, 235 min; learned challah 90, cleaning 40 | **Over by 20.** Suggests moving **cleaning** (the only heavy Thursday candidate, 40 ≥ 20) to Thursday 20:00-20:40. Friday then fits with slack 5 |
+| 6 | Week 2: ready 15:55, 235 min; learned challah 90, cleaning 40 | **Over by 20.** Suggests moving **cleaning** (the only heavy Thursday candidate, 40 ≥ 20) to Thursday 20:00-20:40. Friday then fits with slack 20 (the forward pass packs tighter than the backward estimate of 5) |
 | 7 | Approval of cleaning move + guests | Week file gets two overrides: `move_to_thursday [cleaning]` and `skip_tags [dinner]`. Cooking and slow_cook are skipped for this week only |
 | 8 | 13:00, 40 behind, so effective 12:20 | Challah started 12:00 and is 20 min in, 70 left. Remaining need 180 > 175 available, so **flowers (nice) is dropped**. Challah 13:00-14:10, set_table 14:10-14:25 (before the 15:00 anchor), shopping 14:25-15:15, free 15:15-15:25, shower 15:25-15:45, checklist 15:45-15:55. Rise and bake end 15:25 |
 
@@ -419,7 +422,7 @@ Session 1 runs turns 1–5 in one `ClaudeSDKClient`. Its `session_id` goes to `d
 
 | Test file | Tests |
 |---|---|
-| test_scheduler | ready = candles − buffer; checklist is last block ending at ready; `last` anchor directly before checklist; no two active blocks overlap; passive overlaps active; no task starts before its deps end; `end_by` anchor respected; week 1 (ready 16:01) fits with **slack 6**; week 2 with learned durations (ready 15:55) is **over by 20** → suggests cleaning (40) on Thursday 20:00-20:40, and Friday then fits with slack 5; turn-7 state (cleaning moved + dinner skipped) fits; turn-8 re-plan (13:00, 40 behind) drops flowers only, keeps all must tasks, and matches the section 4 block times; must-only infeasible → reported, never dropped; cycle → ToolError; determinism (same input → same output) |
+| test_scheduler | ready = candles − buffer; checklist is last block ending at ready; `last` anchor directly before checklist; no two active blocks overlap; passive overlaps active; no task starts before its deps end; `end_by` anchor respected; week 1 (ready 16:01) fits with **slack 6**; week 2 with learned durations (ready 15:55) is **over by 20** → suggests cleaning (40) on Thursday 20:00-20:40, and Friday then fits with slack 20; turn-7 state (cleaning moved + dinner skipped) fits; turn-8 re-plan (13:00, 40 behind) drops flowers only, keeps all must tasks, and matches the section 4 block times; must-only infeasible → reported, never dropped; cycle → ToolError; determinism (same input → same output) |
 | test_hebcal | parses 16:11 / 16:05 from fixtures; no `b` parameter sent; geonameid 281184 in URL; cache hit avoids a second fetch; HTTP error → ToolError; unsupported city → ToolError |
 | test_memory_files | profile/tasks/checklist/learned round-trip; learned mean of last 3; week override written only to its own file; templates byte-identical after override; expired week not loaded |
 | test_tools_impl | every tool returns ≤ N lines / chars; `list_tasks` one line per task; errors raise ToolError; `tool_log.jsonl` written |
