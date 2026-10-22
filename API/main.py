@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
 from API.agent import DEFAULT_COMPACT_THRESHOLD, ApiAgent  # noqa: E402
 from shared import config, hebcal  # noqa: E402
 from shared.checks import run_checks  # noqa: E402
+from shared.console import setup_output  # noqa: E402
 from shared.results import api_loc, build_results, library_versions, write_results  # noqa: E402
 from shared.scenario import load_scenario, reset_state  # noqa: E402
 
@@ -72,20 +73,6 @@ def preflight(client: object) -> int:
     return 0 if counted >= 512 and cached else 1
 
 
-class _Tee:
-    def __init__(self, *streams):
-        self.streams = streams
-
-    def write(self, s: str) -> int:
-        for st in self.streams:
-            st.write(s)
-        return len(s)
-
-    def flush(self) -> None:
-        for st in self.streams:
-            st.flush()
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description="Erev Shabbat Countdown on the raw Messages API")
     parser.add_argument("--scenario")
@@ -98,10 +85,7 @@ def main() -> int:
     args = parser.parse_args()
     if not args.preflight and not (args.scenario and args.out):
         parser.error("--scenario and --out are required (or use --preflight)")
-    sys.stdout.reconfigure(encoding="utf-8")
-    if args.log:
-        Path(args.log).parent.mkdir(parents=True, exist_ok=True)
-        sys.stdout = _Tee(sys.stdout, open(args.log, "w", encoding="utf-8"))
+    setup_output(args.log)
     if not os.environ.get("ANTHROPIC_API_KEY"):
         log("ANTHROPIC_API_KEY is not set. Set it in this terminal only, never in a file:")
         log('  PowerShell:  $env:ANTHROPIC_API_KEY = "sk-ant-..."')
