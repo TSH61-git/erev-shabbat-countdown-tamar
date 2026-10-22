@@ -1,0 +1,238 @@
+{
+  "version": "api",
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "libraries": {
+    "anthropic": "2.1.0",
+    "requests": "2.34.2",
+    "truststore": "0.10.5"
+  },
+  "run_finished": "2026-10-23T02:09:50",
+  "turns": [
+    {
+      "turn": 1,
+      "session": 1,
+      "model_calls": 3,
+      "tools": [
+        "update_profile",
+        "get_shabbat_times"
+      ],
+      "cost_usd": 0.03421,
+      "seconds": 9.5,
+      "compacted": false,
+      "reply_preview": "I've saved your settings: Jerusalem, ready 10 minutes before candle lighting, Friday prep from 12:00, and Thursday nights free 20:00–00:00.\n\nThis Friday (Oct 30, Vayera): candles at 16:11, so you need to be ready by 16:01. Havdalah is at 17:28.\n\nNext, tell me what you prepare each Friday. For each t",
+      "tokens": {
+        "input": 8,
+        "cache_read": 8389,
+        "cache_write": 4448,
+        "output": 513
+      }
+    },
+    {
+      "turn": 2,
+      "session": 1,
+      "model_calls": 3,
+      "tools": [
+        "upsert_tasks",
+        "build_timeline"
+      ],
+      "cost_usd": 0.0341,
+      "seconds": 12.31,
+      "compacted": false,
+      "reply_preview": "I've saved all 10 tasks. Here's this Friday's plan:\n\n```\nFri 2026-10-30 candles 16:11 ready 16:01 | start 12:00 | slack 16\n12:00-12:50 Shopping (active)\n12:50-13:05 Cooking (active)\n13:05-14:05 Challah (active)\n13:05-15:35 Slow cook (passive)\n14:05-14:20 Set table (active)\n14:05-14:50 Challah rise (",
+      "tokens": {
+        "input": 8,
+        "cache_read": 15536,
+        "cache_write": 1796,
+        "output": 1099
+      }
+    },
+    {
+      "turn": 3,
+      "session": 1,
+      "model_calls": 2,
+      "tools": [
+        "set_checklist",
+        "build_timeline"
+      ],
+      "cost_usd": 0.019793,
+      "seconds": 7.68,
+      "compacted": false,
+      "reply_preview": "I saved the checklist (4 items, 10 minutes total). Here's the updated plan:\n\n```\nFri 2026-10-30 candles 16:11 ready 16:01 | start 12:00 | slack 6\n12:00-12:50 Shopping (active)\n12:50-13:05 Cooking (active)\n13:05-14:05 Challah (active)\n13:05-15:35 Slow cook (passive)\n14:05-14:20 Set table (active)\n14:",
+      "tokens": {
+        "input": 6,
+        "cache_read": 13021,
+        "cache_write": 1053,
+        "output": 595
+      }
+    },
+    {
+      "turn": 4,
+      "session": 1,
+      "model_calls": 2,
+      "tools": [
+        "build_timeline"
+      ],
+      "cost_usd": 0.015999,
+      "seconds": 5.52,
+      "compacted": false,
+      "reply_preview": "```\nFri 2026-10-30 candles 16:11 ready 16:01 | start 12:00 | slack 6\n12:00-12:50 Shopping (active)\n12:50-13:05 Cooking (active)\n13:05-14:05 Challah (active)\n13:05-15:35 Slow cook (passive)\n14:05-14:20 Set table (active)\n14:05-14:50 Challah rise (passive)\n14:20-15:10 Cleaning (active)\n14:50-15:20 Cha",
+      "tokens": {
+        "input": 6,
+        "cache_read": 15125,
+        "cache_write": 874,
+        "output": 429
+      }
+    },
+    {
+      "turn": 5,
+      "session": 1,
+      "model_calls": 4,
+      "tools": [
+        "list_tasks",
+        "log_actuals"
+      ],
+      "cost_usd": 0.041508,
+      "seconds": 14.26,
+      "compacted": true,
+      "reply_preview": "I've saved last Friday's (2026-10-30) times:\n- **challah:** 60 → 90 min. I logged this to the hands-on challah step only. Rising and baking are separate tasks and stay the same.\n- **cleaning:** 50 → 40 min.\n\nFuture plans will now use these times. That's 20 more minutes of work overall, and last week",
+      "tokens": {
+        "input": 3414,
+        "cache_read": 12985,
+        "cache_write": 1039,
+        "output": 1003
+      }
+    },
+    {
+      "turn": 6,
+      "session": 2,
+      "model_calls": 3,
+      "tools": [
+        "get_shabbat_times",
+        "build_timeline"
+      ],
+      "cost_usd": 0.018009,
+      "seconds": 7.68,
+      "compacted": false,
+      "reply_preview": "Friday's plan doesn't fit by 20 minutes. Candles are at 16:05, so you need to be ready by 15:55.\n\n**Suggestion:** do the cleaning (40 min) tonight, Thursday, 20:00–20:40. The plan below assumes you do:\n\n```\nFri 2026-11-06 candles 16:05 ready 15:55 | start 12:00 | slack 20\n12:00-12:50 Shopping (activ",
+      "tokens": {
+        "input": 8,
+        "cache_read": 15711,
+        "cache_write": 899,
+        "output": 517
+      }
+    },
+    {
+      "turn": 7,
+      "session": 2,
+      "model_calls": 3,
+      "tools": [
+        "set_week_override",
+        "set_week_override",
+        "build_timeline"
+      ],
+      "cost_usd": 0.030355,
+      "seconds": 11.17,
+      "compacted": false,
+      "reply_preview": "I saved both changes for this Friday only. Your saved tasks stay as they are.\n- **Cleaning** is moved to tonight, Thursday.\n- **Guests Friday night:** this skips cooking and slow cook, which are normally must-do tasks. They'll be back in the plan from next week.\n\nThe plan now fits with 35 minutes to",
+      "tokens": {
+        "input": 8,
+        "cache_read": 19162,
+        "cache_write": 1442,
+        "output": 964
+      }
+    },
+    {
+      "turn": 8,
+      "session": 2,
+      "model_calls": 2,
+      "tools": [
+        "build_timeline"
+      ],
+      "cost_usd": 0.01482,
+      "seconds": 4.89,
+      "compacted": false,
+      "reply_preview": "You'll still be ready by 15:55, with 10 minutes to spare. To make that work I dropped **flowers**, and the optional short break is gone too.\n\n```\n13:00-14:10 Challah (active)\n14:10-14:25 Set table (active)\n14:10-14:55 Challah rise (passive)\n14:25-15:15 Shopping (active)\n14:55-15:25 Challah bake (pas",
+      "tokens": {
+        "input": 6,
+        "cache_read": 15183,
+        "cache_write": 988,
+        "output": 341
+      }
+    }
+  ],
+  "totals": {
+    "tokens": {
+      "input": 3464,
+      "cache_read": 115112,
+      "cache_write": 12539,
+      "output": 5461
+    },
+    "cache_read_pct": 87.8,
+    "model_calls": 22,
+    "cost_usd": 0.208794,
+    "seconds": 73.01
+  },
+  "checks": [
+    {
+      "id": 1,
+      "name": "city and buffer saved",
+      "passed": true,
+      "detail": "Jerusalem/10"
+    },
+    {
+      "id": 2,
+      "name": "checklist saved and last in timeline",
+      "passed": true,
+      "detail": "4 items, 10 min, missing none, last block is checklist: True"
+    },
+    {
+      "id": 3,
+      "name": "learned challah duration",
+      "passed": true,
+      "detail": "learned {'challah': 90}"
+    },
+    {
+      "id": 4,
+      "name": "session 2 uses learned duration",
+      "passed": true,
+      "detail": "3 session-2 timelines, wrong: none"
+    },
+    {
+      "id": 5,
+      "name": "week overrides only for their Friday, templates unchanged",
+      "passed": true,
+      "detail": "move: True, dinner skip: True, templates {'cleaning': 50, 'cooking': 15, 'slow_cook': 150}"
+    },
+    {
+      "id": 6,
+      "name": "final timeline valid",
+      "passed": true,
+      "detail": "turn 8: valid"
+    },
+    {
+      "id": 7,
+      "name": "external tool called",
+      "passed": true,
+      "detail": "2 successful get_shabbat_times calls"
+    }
+  ],
+  "checks_passed": "7/7",
+  "loc": {
+    "loop.py": 39,
+    "tools.py": 27,
+    "history.py": 48,
+    "memory.py": 33,
+    "context.py": 12,
+    "compaction.py": 48,
+    "caching.py": 20,
+    "tokens.py": 42
+  },
+  "loc_total": 269,
+  "extra": {
+    "compact_threshold": 8000,
+    "compacted_turns": [
+      5
+    ]
+  }
+}
