@@ -69,12 +69,18 @@ class FakeAnthropicClient:
 
 class FakeClaudeCode:
     instances: list["FakeClaudeCode"] = []
+    # Running totals live on the class: the real CLI restores them when a session is resumed.
+    totals = {"cost": 0.0, "opus": {}, "haiku_done": False}
+
+    @classmethod
+    def reset(cls):
+        cls.instances.clear()
+        cls.totals = {"cost": 0.0, "opus": {}, "haiku_done": False}
 
     def __init__(self, options, tools, calls_by_now: dict, session_id: str = "sess-1"):
         self.options, self.calls_by_now = options, calls_by_now
         self.handlers = {t.name: t.handler for t in tools}
         self.session_id = options.resume or session_id
-        self.cost = 0.0
         self.prompt = ""
         FakeClaudeCode.instances.append(self)
 
@@ -94,16 +100,32 @@ class FakeClaudeCode:
         out = await hook({"prompt": self.prompt}, None, None)
         line = out["hookSpecificOutput"]["additionalContext"]
         calls = self.calls_by_now[re.search(r"now: (.+?) \|", line).group(1)]
-        usage = {"input_tokens": 5, "cache_read_input_tokens": 9000,
-                 "cache_creation_input_tokens": 300, "output_tokens": 200}
+        snapshot = {"input_tokens": 2, "cache_read_input_tokens": 9000,
+                    "cache_creation_input_tokens": 300, "output_tokens": 1}
         uses = [ToolUseBlock(f"tu_{i}", f"mcp__shabbat__{n}", a) for i, (n, a) in enumerate(calls)]
-        yield AssistantMessage(uses[:1], "claude-opus-5-5", usage=usage, message_id="m1")
-        yield AssistantMessage(uses[1:], "claude-opus-5-5", usage=usage, message_id="m1")
+        yield AssistantMessage(uses[:1], "claude-opus-5-5", usage=snapshot, message_id="m1")
+        yield AssistantMessage(uses[1:], "claude-opus-5-5", usage=snapshot, message_id="m1")
         for (n, a) in calls:
             await self.handlers[n](a)
         yield AssistantMessage([TextBlock("Here is your plan.")], "claude-opus-5-5",
-                               usage=usage, message_id="m2")
-        self.cost += 0.01
+                               usage=snapshot, message_id="m2")
+        usage = {"input_tokens": 4, "cache_read_input_tokens": 18000,
+                 "cache_creation_input_tokens": 600, "output_tokens": 400,
+                 "cache_creation": {"ephemeral_1h_input_tokens": 600, "ephemeral_5m_input_tokens": 0}}
+        turn_cost = (4 * 4 + 18000 * 0.2 + 600 * 8 + 400 * 20) / 1e6
+        t = FakeClaudeCode.totals
+        opus = t["opus"]
+        for k, v in [("inputTokens", 4), ("cacheReadInputTokens", 18000),
+                     ("cacheCreationInputTokens", 600), ("outputTokens", 400), ("costUSD", turn_cost)]:
+            opus[k] = opus.get(k, 0) + v
+        t["cost"] += turn_cost
+        model_usage = {"claude-opus-5-5": dict(opus)}
+        if not t["haiku_done"]:
+            t["haiku_done"] = True
+            t["cost"] += 0.0002219
+        model_usage["claude-haiku-5-5"] = {"inputTokens": 1224, "outputTokens": 199,
+                                           "cacheReadInputTokens": 0, "cacheCreationInputTokens": 0,
+                                           "costUSD": 0.0002219}
         yield ResultMessage("success", 10, 10, False, 2, self.session_id,
-                            total_cost_usd=round(self.cost, 6), usage=usage,
-                            result="Here is your plan.")
+                            total_cost_usd=round(t["cost"], 7), usage=usage,
+                            result="Here is your plan.", model_usage=model_usage)

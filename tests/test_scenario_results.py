@@ -68,7 +68,8 @@ def test_totals_and_cache_percent():
              TurnRecord(2, 1, input=200, cache_read=0, cache_write=0, output=10,
                         model_calls=1, cost_usd=0.002, seconds=0.5)]
     t = totals(turns)
-    assert t["tokens"] == {"input": 300, "cache_read": 800, "cache_write": 100, "output": 60}
+    assert t["tokens"] == {"input": 300, "cache_read": 800, "cache_write": 100, "cache_write_1h": 0,
+                           "output": 60}
     assert t["cache_read_pct"] == 66.7 and t["model_calls"] == 3
     assert t["cost_usd"] == 0.012 and t["seconds"] == 2.0
 
@@ -82,7 +83,7 @@ def test_results_file_has_every_required_field(tmp_path):
     write_results(path, data)
     saved = json.loads(path.read_text(encoding="utf-8"))
     row = saved["turns"][0]
-    assert set(row["tokens"]) == {"input", "cache_read", "cache_write", "output"}
+    assert set(row["tokens"]) == {"input", "cache_read", "cache_write", "cache_write_1h", "output"}
     assert {"model_calls", "tools", "cost_usd", "seconds"} <= set(row)
     assert saved["model"] == "claude-opus-5-5" and saved["effort"] == "medium"
     assert saved["checks_passed"] == "1/1" and saved["loc_total"] == 8

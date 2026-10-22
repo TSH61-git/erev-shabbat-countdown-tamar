@@ -73,7 +73,7 @@ def test_claude_md_summary(store):
 
 
 async def test_full_scenario_offline(tmp_path):
-    FakeClaudeCode.instances.clear()
+    FakeClaudeCode.reset()
     out = tmp_path / "results" / "sdk.json"
     results = await run_async(str(PROJECT_ROOT / "scenario.json"), str(out),
                               data_dir=str(tmp_path / "data" / "sdk"), fetch=FakeHebcal(),
@@ -85,7 +85,6 @@ async def test_full_scenario_offline(tmp_path):
     first, second = FakeClaudeCode.instances
     assert first.options.resume is None and second.options.resume == "sess-1"
     assert saved["extra"]["session_ids"] == ["sess-1", "sess-1"]
-    assert saved["extra"]["reported_total_cost_usd"] == 0.08
     workspace_md = (tmp_path / "data" / "sdk" / "workspace" / "CLAUDE.md").read_text(encoding="utf-8")
     assert "learned durations for: challah, cleaning" in workspace_md
     loc = saved["loc"]
@@ -93,6 +92,37 @@ async def test_full_scenario_offline(tmp_path):
     assert all(loc[f] > 0 for f in ["loop.py", "tools.py", "history.py", "memory.py",
                                     "context.py", "tokens.py"])
     assert results["version"] == "sdk"
+
+
+async def run_fake(tmp_path) -> dict:
+    FakeClaudeCode.reset()
+    out = tmp_path / "sdk.json"
+    await run_async(str(PROJECT_ROOT / "scenario.json"), str(out),
+                    data_dir=str(tmp_path / "data" / "sdk"), fetch=FakeHebcal(),
+                    client_factory=lambda o, t: FakeClaudeCode(o, t, CALLS_BY_NOW))
+    return json.loads(out.read_text(encoding="utf-8"))
+
+
+async def test_tokens_come_from_the_result_not_message_snapshots(tmp_path):
+    saved = await run_fake(tmp_path)
+    assert {t["tokens"]["output"] for t in saved["turns"]} == {400}
+    assert {t["tokens"]["cache_write_1h"] for t in saved["turns"]} == {600}
+
+
+async def test_resume_does_not_double_count_session_1(tmp_path):
+    saved = await run_fake(tmp_path)
+    per_turn = [e["reported_cost_usd"] for e in saved["extra"]["per_turn"]]
+    assert per_turn[5] < 0.02, per_turn
+    assert saved["extra"]["reported_total_cost_usd"] == pytest.approx(
+        saved["extra"]["sdk_final_total_cost_usd"], abs=1e-6)
+
+
+async def test_our_cost_matches_the_sdk_including_helper_and_1h_writes(tmp_path):
+    saved = await run_fake(tmp_path)
+    helpers = [e["helper_models"] for e in saved["extra"]["per_turn"]]
+    assert list(helpers[0]) == ["claude-haiku-5-5"] and all(h == {} for h in helpers[1:])
+    assert saved["totals"]["cost_usd"] == pytest.approx(
+        saved["extra"]["sdk_final_total_cost_usd"], abs=1e-5)
 
 
 def test_main_refuses_when_api_key_is_set(monkeypatch, capsys, tmp_path):
