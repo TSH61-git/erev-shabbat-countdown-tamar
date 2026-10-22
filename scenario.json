@@ -1,0 +1,60 @@
+{
+  "name": "Erev Shabbat Countdown - two weeks in Jerusalem",
+  "sessions": [
+    {
+      "session": 1,
+      "turns": [
+        {
+          "turn": 1, "now": "2026-10-29T09:00", "friday": "2026-10-30",
+          "text": "I live in Jerusalem, I want to be ready 10 minutes before candle lighting. On Fridays I start at 12:00. Thursday night I'm free 20:00-00:00."
+        },
+        {
+          "turn": 2, "now": "2026-10-29T09:05", "friday": "2026-10-30",
+          "text": "Add my tasks. 1) shopping: 50 min, active, must, no dependencies, not heavy, cannot move to Thursday. 2) challah: 60 min, active, must, no dependencies, not heavy, cannot move to Thursday. 3) challah_rise: 45 min, passive, must, depends on challah, cannot move to Thursday. 4) challah_bake: 30 min, passive, must, depends on challah_rise, cannot move to Thursday. 5) cooking: 15 min, active, must, depends on shopping, tag dinner, not heavy, can move to Thursday. 6) slow_cook: 150 min, passive, must, depends on cooking, tag dinner, cannot move to Thursday. 7) cleaning: 50 min, active, must, no dependencies, heavy, can move to Thursday. 8) set_table: 15 min, active, must, no dependencies, must end by 15:00, cannot move to Thursday. 9) flowers: 15 min, active, nice-to-have, no dependencies, cannot move to Thursday. 10) shower: 20 min, active, must, no dependencies, always the last task before the checklist, cannot move to Thursday."
+        },
+        {
+          "turn": 3, "now": "2026-10-29T09:10", "friday": "2026-10-30",
+          "text": "My last-minute checklist: turn off the phone 2 min, set the alarm 2 min, turn on the hot plate 3 min, set the light timers 3 min."
+        },
+        {
+          "turn": 4, "now": "2026-10-29T09:15", "friday": "2026-10-30",
+          "text": "Build my Friday plan."
+        },
+        {
+          "turn": 5, "now": "2026-10-31T19:00", "friday": "2026-10-30",
+          "text": "Weekly review: challah took 90 minutes, cleaning only 40."
+        }
+      ]
+    },
+    {
+      "session": 2,
+      "turns": [
+        {
+          "turn": 6, "now": "2026-11-05T09:00", "friday": "2026-11-06",
+          "text": "Plan this Friday."
+        },
+        {
+          "turn": 7, "now": "2026-11-05T09:10", "friday": "2026-11-06",
+          "text": "Yes, move cleaning to Thursday night. And this week we're guests Friday night, no dinner cooking."
+        },
+        {
+          "turn": 8, "now": "2026-11-06T13:00", "friday": "2026-11-06",
+          "text": "It's 13:00 and I'm 40 minutes behind."
+        }
+      ]
+    }
+  ],
+  "expect": {
+    "city": "Jerusalem",
+    "ready_buffer_min": 10,
+    "checklist_keywords": ["phone", "alarm", "hot plate", "light"],
+    "checklist_minutes": 10,
+    "learned": {"challah": 90},
+    "session2_minutes": {"challah": 90},
+    "override_friday": "2026-11-06",
+    "thursday_tasks": ["cleaning"],
+    "dinner_tasks": ["cooking", "slow_cook"],
+    "templates_unchanged": {"cleaning": 50, "cooking": 15, "slow_cook": 150},
+    "external_tool": "get_shabbat_times"
+  }
+}
