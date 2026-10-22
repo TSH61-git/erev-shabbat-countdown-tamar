@@ -30,6 +30,8 @@ The agent plans Erev Shabbat for one person in Jerusalem. It fetches candle ligh
 | Scenario candle times | 2026-10-30: **16:11** (ready 16:01). 2026-11-06: **16:05** (ready 15:55). Both `+02:00` | live response |
 | Library versions (PyPI today) | `anthropic==2.1.0`, `claude-agent-sdk==0.2.172`, `requests==2.34.2`, `pytest==9.1.1`, `pytest-asyncio==1.4.0`; Python 3.13.3 installed | `pip index versions` |
 | Network (Phase 3) | This machine's internet goes through NetFree, which re-signs HTTPS. Python 3.13 rejects its CA (`CA cert does not include key usage extension`) for both Hebcal and api.anthropic.com. Fix: `truststore` (verify via the Windows store), called from both `main.py` files. TLS verification stays on | live test |
+| Live preflight (Phase 8, $0.03) | System prompt + 10 tools = 3,963 tokens (cacheable). Call 1 wrote 4,043 cache tokens; calls 2-3 read 4,043 / 4,146 from cache. Empty thinking blocks (signature ~1,000 chars) replayed with a moving cache_control marker: accepted, no preserved-thinking 400. Risk 2 closed | data/preflight.log |
+| First full API run (Phase 8) | 7/7 checks, 22 model calls, cache read 87.8%, $0.21, 73 s. Compaction at 8,000 fired at the start of turn 5 (last prompt 8,173), the end of session 1, not session 2 as first planned; it still triggers once in the scenario as required | results/api.json, results/api_run.log |
 | anthropic 2.x surface (Phase 0) | Sends API version `2026-10-21`. `messages.create` has `thinking`, `output_config` (`effort`: low/medium/high/xhigh/max), `tool_choice`, `cache_control`; `count_tokens` exists; `Usage` has `input_tokens`, `cache_read_input_tokens`, `cache_creation_input_tokens`, `output_tokens` | installed package introspection |
 
 ---
