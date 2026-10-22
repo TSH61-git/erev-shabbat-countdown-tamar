@@ -12,7 +12,7 @@ from shared.scenario import Turn
 from shared.store import DataStore
 from shared.tools_impl import ToolContext
 
-DEFAULT_COMPACT_THRESHOLD = 9000
+DEFAULT_COMPACT_THRESHOLD = 8000
 
 
 def log(msg: str) -> None:
