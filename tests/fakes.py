@@ -65,3 +65,45 @@ class FakeMessages:
 class FakeAnthropicClient:
     def __init__(self, script: list):
         self.messages = FakeMessages(script)
+
+
+class FakeClaudeCode:
+    instances: list["FakeClaudeCode"] = []
+
+    def __init__(self, options, tools, calls_by_now: dict, session_id: str = "sess-1"):
+        self.options, self.calls_by_now = options, calls_by_now
+        self.handlers = {t.name: t.handler for t in tools}
+        self.session_id = options.resume or session_id
+        self.cost = 0.0
+        self.prompt = ""
+        FakeClaudeCode.instances.append(self)
+
+    async def connect(self):
+        pass
+
+    async def disconnect(self):
+        pass
+
+    async def query(self, prompt: str):
+        self.prompt = prompt
+
+    async def receive_response(self):
+        import re
+        from claude_agent_sdk import AssistantMessage, ResultMessage, TextBlock, ToolUseBlock
+        hook = self.options.hooks["UserPromptSubmit"][0].hooks[0]
+        out = await hook({"prompt": self.prompt}, None, None)
+        line = out["hookSpecificOutput"]["additionalContext"]
+        calls = self.calls_by_now[re.search(r"now: (.+?) \|", line).group(1)]
+        usage = {"input_tokens": 5, "cache_read_input_tokens": 9000,
+                 "cache_creation_input_tokens": 300, "output_tokens": 200}
+        uses = [ToolUseBlock(f"tu_{i}", f"mcp__shabbat__{n}", a) for i, (n, a) in enumerate(calls)]
+        yield AssistantMessage(uses[:1], "claude-opus-5-5", usage=usage, message_id="m1")
+        yield AssistantMessage(uses[1:], "claude-opus-5-5", usage=usage, message_id="m1")
+        for (n, a) in calls:
+            await self.handlers[n](a)
+        yield AssistantMessage([TextBlock("Here is your plan.")], "claude-opus-5-5",
+                               usage=usage, message_id="m2")
+        self.cost += 0.01
+        yield ResultMessage("success", 10, 10, False, 2, self.session_id,
+                            total_cost_usd=round(self.cost, 6), usage=usage,
+                            result="Here is your plan.")
