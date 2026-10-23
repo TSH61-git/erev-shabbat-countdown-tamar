@@ -126,7 +126,7 @@ class SdkAgent:
         (self.workspace / "CLAUDE.md").write_text(render_claude_md(self.store), encoding="utf-8")  # replaces: memory.py
         self.client = self.client_factory(self.options(), self.tools)  # replaces: loop.py
         await self.client.connect()  # replaces: loop.py
-        log(f"session {self.session}: Claude Code started in {self.workspace}"
+        log(f"session {self.session}: Claude Code started in {config.shown(self.workspace)}"
             + (f", resuming {self.resume}" if self.resume else ""))
         return self
 

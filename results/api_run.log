@@ -1,4 +1,4 @@
-[main.py] clean state in C:\Users\User\Desktop\Tamush\1\erev-shabbat-countdown-tamar\data\api; 8 turns in 2 sessions
+[main.py] clean state in data\api; 8 turns in 2 sessions
 [history.py] session 1 start, 0 earlier records on disk
 [agent.py] new agent instance for session 1; 0 messages reloaded from disk
 [agent.py] turn 1 (session 1) at 2026-10-29 09:00

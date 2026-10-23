@@ -28,7 +28,7 @@ async def run_async(scenario_path: str, out_path: str, data_dir: str | None = No
                     client_factory: ClientFactory | None = None) -> dict:
     scenario = load_scenario(scenario_path)
     store = reset_state(config.data_dir("sdk", data_dir))
-    log(f"clean state in {store.root}; {len(scenario.turns)} turns in {len(scenario.sessions)} sessions")
+    log(f"clean state in {config.shown(store.root)}; {len(scenario.turns)} turns in {len(scenario.sessions)} sessions")
     records, extra, resume, session_ids, carry = [], [], None, [], None
     for turns in scenario.sessions:
         async with SdkAgent(store, turns[0].session, resume, fetch, client_factory, carry) as agent:

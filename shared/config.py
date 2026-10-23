@@ -34,3 +34,11 @@ def canonical_city(name: str) -> str | None:
         if city.casefold() == wanted:
             return city
     return None
+
+
+def shown(path: Path) -> str:
+    # Logs and results are committed; an absolute path would publish the local user folder.
+    try:
+        return str(Path(path).resolve().relative_to(PROJECT_ROOT))
+    except ValueError:
+        return Path(path).name

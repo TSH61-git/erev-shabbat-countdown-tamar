@@ -27,7 +27,7 @@ def run(scenario_path: str, out_path: str, client: object, data_dir: str | None 
         compact_threshold: int = DEFAULT_COMPACT_THRESHOLD) -> dict:
     scenario = load_scenario(scenario_path)
     store = reset_state(config.data_dir("api", data_dir))
-    log(f"clean state in {store.root}; {len(scenario.turns)} turns in {len(scenario.sessions)} sessions")
+    log(f"clean state in {config.shown(store.root)}; {len(scenario.turns)} turns in {len(scenario.sessions)} sessions")
     records = []
     for turns in scenario.sessions:
         agent = ApiAgent(client, store, turns[0].session, fetch, compact_threshold)

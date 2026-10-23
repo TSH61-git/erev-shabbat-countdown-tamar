@@ -1,5 +1,5 @@
-[main.py] clean state in C:\Users\User\Desktop\Tamush\1\erev-shabbat-countdown-tamar\data\sdk; 8 turns in 2 sessions
-[agent.py] session 1: Claude Code started in C:\Users\User\Desktop\Tamush\1\erev-shabbat-countdown-tamar\data\sdk\workspace
+[main.py] clean state in data\sdk; 8 turns in 2 sessions
+[agent.py] session 1: Claude Code started in data\sdk\workspace
 [agent.py] turn 1 (session 1) at 2026-10-29 09:00
 [agent.py] context hook: 156 chars added to the prompt
 [agent.py] turn 1: 3 model calls (num_turns=3), in=6 cache_r=15,576 cache_w=380 (1h 380) out=475, helper claude-haiku-5-5: in=1,224 out=212, $0.0159 by our prices, $0.0159 reported by the SDK
@@ -20,7 +20,7 @@
 [agent.py] context hook: 229 chars added to the prompt
 [agent.py] turn 5: 2 model calls (num_turns=2), in=4 cache_r=18,146 cache_w=669 (1h 669) out=324, $0.0155 by our prices, $0.0155 reported by the SDK
 [main.py] turn 5 reply: 'I saved both times for Friday 2026-10-30. Future plans will use 90 minutes for challah (was 60) and 40 for cleaning (was'
-[agent.py] session 2: Claude Code started in C:\Users\User\Desktop\Tamush\1\erev-shabbat-countdown-tamar\data\sdk\workspace, resuming ad3f93c4-9473-4a51-b142-b381121dbeac
+[agent.py] session 2: Claude Code started in data\sdk\workspace, resuming ad3f93c4-9473-4a51-b142-b381121dbeac
 [agent.py] turn 6 (session 2) at 2026-11-05 09:00
 [agent.py] context hook: 229 chars added to the prompt
 [agent.py] turn 6: 3 model calls (num_turns=3), in=6 cache_r=29,888 cache_w=1,184 (1h 1,184) out=746, $0.0304 by our prices, $0.0304 reported by the SDK
