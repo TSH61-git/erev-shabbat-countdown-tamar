@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
-from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
 from backend import views
+from backend.chat import Busy, ChatService
 from backend.security import protect
+from SDK.agent import ClientFactory
 from shared import config, hebcal
 from shared.store import DataStore
 
@@ -20,12 +24,48 @@ def default_data_dir() -> Path:
     return config.DATA_ROOT / "app"
 
 
+class ChatIn(BaseModel):
+    text: str = Field(min_length=1, max_length=4000)
+
+
+async def sse(queue):
+    while (item := await queue.get()) is not None:
+        event, data = item
+        yield f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+
 def create_app(data_dir: str | Path | None = None, clock: views.Clock = views.jerusalem_now,
-               fetch: hebcal.Fetch = hebcal.fetch_json, port: int = DEFAULT_PORT) -> FastAPI:
+               fetch: hebcal.Fetch = hebcal.fetch_json, port: int = DEFAULT_PORT,
+               client_factory: ClientFactory | None = None) -> FastAPI:
     store = DataStore(data_dir or default_data_dir())
+    chat = ChatService(store, clock, fetch, client_factory)
     app = FastAPI(title="Erev Shabbat Countdown", docs_url=None, redoc_url=None, openapi_url=None)
-    app.state.store, app.state.clock, app.state.fetch = store, clock, fetch
+    app.state.store, app.state.clock, app.state.fetch, app.state.chat = store, clock, fetch, chat
     protect(app, port)
+
+    @app.post("/api/chat")
+    async def post_chat(body: ChatIn):
+        text = body.text.strip()
+        if not text:
+            raise HTTPException(422, "empty message")
+        try:
+            queue = chat.start(text)
+        except Busy as e:
+            raise HTTPException(409, str(e)) from None
+        return StreamingResponse(sse(queue), media_type="text/event-stream",
+                                 headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
+
+    @app.get("/api/history")
+    def history():
+        return chat.history()
+
+    @app.post("/api/session/new")
+    def new_session():
+        try:
+            chat.new_conversation()
+        except Busy as e:
+            raise HTTPException(409, str(e)) from None
+        return {"ok": True}
 
     @app.middleware("http")
     async def no_cache(request: Request, call_next):
@@ -39,7 +79,7 @@ def create_app(data_dir: str | Path | None = None, clock: views.Clock = views.je
     # cache miss never block the event loop that streams the chat.
     @app.get("/api/health")
     def health():
-        return views.health(store, clock(), config.shown(store.root))
+        return {**views.health(store, clock(), config.shown(store.root)), "busy": chat.busy}
 
     @app.get("/api/profile")
     def profile():

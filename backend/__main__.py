@@ -39,6 +39,10 @@ def main(argv: list[str] | None = None) -> int:
         log("WARNING: ANTHROPIC_API_KEY is set, so Claude Code would bill the key, not your login.")
         log("  PowerShell:  Remove-Item Env:ANTHROPIC_API_KEY   (or open a new terminal)")
         return 2
+    if os.environ.pop("CLAUDE_CODE_SSE_PORT", None):
+        # Set by an editor's terminal; the Claude Code subprocess inherits our environment
+        # and would try to attach to that editor instead of running headless.
+        log("note: ignoring CLAUDE_CODE_SSE_PORT from this terminal")
     use_os_trust_store()
     url = f"http://{HOST}:{args.port}"
     log(f"data in {config.shown(default_data_dir())}; open {url}  (Ctrl+C to stop)")
