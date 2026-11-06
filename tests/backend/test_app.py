@@ -100,3 +100,13 @@ def test_start_binds_to_localhost_only(monkeypatch):
     assert entry.main(["--no-browser", "--port", "8799"]) == 0
     # use_subprocess (reload/workers) is what makes uvicorn pick the selector loop on Windows.
     assert seen == {"host": "127.0.0.1", "port": 8799, "use_subprocess": False}
+
+
+def test_editor_port_is_not_passed_to_claude_code(monkeypatch, capsys):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setenv("CLAUDE_CODE_SSE_PORT", "51234")
+    monkeypatch.setattr(entry, "use_os_trust_store", lambda: None)
+    monkeypatch.setattr(entry.uvicorn.Server, "run", lambda self: None)
+    assert entry.main(["--no-browser"]) == 0
+    assert "CLAUDE_CODE_SSE_PORT" not in entry.os.environ
+    assert "ignoring CLAUDE_CODE_SSE_PORT" in capsys.readouterr().out
