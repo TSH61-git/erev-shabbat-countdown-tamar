@@ -4,8 +4,9 @@ from datetime import date, datetime, timedelta
 from typing import Callable
 from zoneinfo import ZoneInfo
 
+from backend import hebrew
 from SDK.agent import SESSION_FILE
-from shared import hebcal, memory_files as mem, scheduler
+from shared import config, hebcal, memory_files as mem, scheduler
 from shared.context_line import this_friday
 from shared.domain import Profile, ToolError, fmt_hhmm, parse_hhmm
 from shared.scheduler import label
@@ -14,6 +15,7 @@ from shared.tools_impl import LAST_TIMELINE, describe_override
 
 Clock = Callable[[], datetime]
 ZONE = ZoneInfo("Asia/Jerusalem")
+DONE_DIR = "done"
 
 
 def jerusalem_now() -> datetime:
@@ -37,15 +39,16 @@ def status(now: datetime, friday: date, day_start: str, ready: str, candles: str
             "minutes_until_ready": int((ready_at - now).total_seconds() // 60)}
 
 
-def health(store: DataStore, now: datetime, shown_dir: str) -> dict:
+def health(store: DataStore, now: datetime, shown_dir: str, user_name: str) -> dict:
     session = store.read_json(SESSION_FILE) or {}
     return {"ok": True, "now": now.isoformat(timespec="minutes"), "friday": this_friday(now).isoformat(),
-            "data_dir": shown_dir, "session_id": session.get("session_id")}
+            "data_dir": shown_dir, "session_id": session.get("session_id"),
+            "user": {"name": user_name, "initial": user_name[:1]}}
 
 
 def profile(store: DataStore) -> dict | None:
     p = mem.load_profile(store)
-    return p.to_dict() if p else None
+    return {**p.to_dict(), "city_he": hebrew.CITY_HE.get(p.city, p.city)} if p else None
 
 
 def tasks(store: DataStore) -> dict:
@@ -76,20 +79,42 @@ def _ready(p: Profile, candles: str) -> str:
     return fmt_hhmm(parse_hhmm(candles) - p.ready_buffer_min)
 
 
-def candles(store: DataStore, now: datetime, fetch: hebcal.Fetch) -> dict:
+def candles(store: DataStore, now: datetime, fetch: hebcal.Fetch,
+            url_fetch: hebrew.UrlFetch | None = None) -> dict:
     friday = this_friday(now)
     p = mem.load_profile(store)
+    # The date and parasha don't depend on the profile, so a first visit already shows them.
+    geonameid = p.geonameid if p else config.CITIES["Jerusalem"]
+    names = hebrew.for_friday(store, friday, geonameid, fetch, url_fetch)
+    he = {"date_he": names.get("date_he"), "parasha_he": names.get("parasha_he")}
     if p is None:
-        return {"available": False, "friday": friday.isoformat(), "reason": "no profile saved yet"}
+        return {"available": False, "friday": friday.isoformat(), "reason": "no profile saved yet", **he}
     try:
         t = _times(store, p, friday, fetch)
     except ToolError as e:
-        return {"available": False, "friday": friday.isoformat(), "reason": str(e)}
+        return {"available": False, "friday": friday.isoformat(), "reason": str(e), **he}
     ready = _ready(p, t.candles)
     return {"available": True, "friday": friday.isoformat(), "city": p.city, "candles": t.candles,
             "havdalah": t.havdalah, "parasha": t.parasha, "ready": ready,
-            "ready_buffer_min": p.ready_buffer_min,
+            "ready_buffer_min": p.ready_buffer_min, "day_start": p.friday_start, **he,
             **status(now, friday, p.friday_start, ready, t.candles)}
+
+
+def _done_file(friday: date) -> str:
+    # One file per Friday: next week starts with nothing ticked, with no clean-up step.
+    return f"{DONE_DIR}/{friday.isoformat()}.json"
+
+
+def done_keys(store: DataStore, friday: date) -> list[str]:
+    return store.read_json(_done_file(friday), {}).get("done", [])
+
+
+def set_done(store: DataStore, now: datetime, key: str, done: bool) -> dict:
+    friday = this_friday(now)
+    keys = set(done_keys(store, friday))
+    (keys.add if done else keys.discard)(key)
+    store.write_json(_done_file(friday), {"friday": friday.isoformat(), "done": sorted(keys)})
+    return {"friday": friday.isoformat(), "done": sorted(keys)}
 
 
 def timeline(store: DataStore, now: datetime, fetch: hebcal.Fetch) -> dict:
@@ -118,4 +143,5 @@ def timeline(store: DataStore, now: datetime, fetch: hebcal.Fetch) -> dict:
             overrides=mem.active_overrides(store, friday.isoformat(), now)).to_dict()
         source = "preview"
     return {**plan, "source": source, "checklist": [i.to_dict() for i in items],
+            "done": done_keys(store, friday),
             **status(now, friday, plan["day_start"], plan["ready"], plan["candles"])}

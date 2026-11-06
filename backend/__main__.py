@@ -9,7 +9,7 @@ import webbrowser
 
 import uvicorn
 
-from backend.app import DEFAULT_PORT, create_app, default_data_dir
+from backend.app import DEFAULT_PORT, USER_NAME, create_app, default_data_dir
 from shared import config
 from shared.net import use_os_trust_store
 
@@ -34,6 +34,7 @@ def main(argv: list[str] | None = None) -> int:
                                      description="Erev Shabbat Countdown, local web app")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     parser.add_argument("--no-browser", action="store_true", help="don't open the browser")
+    parser.add_argument("--name", default=USER_NAME, help=f"name shown on the page (default {USER_NAME})")
     args = parser.parse_args(argv)
     if os.environ.get("ANTHROPIC_API_KEY"):
         log("WARNING: ANTHROPIC_API_KEY is set, so Claude Code would bill the key, not your login.")
@@ -48,11 +49,17 @@ def main(argv: list[str] | None = None) -> int:
     log(f"data in {config.shown(default_data_dir())}; open {url}  (Ctrl+C to stop)")
     # No reload and no workers: on Windows uvicorn then switches to the selector event loop,
     # which cannot start the Claude Code subprocess.
-    server = uvicorn.Server(uvicorn.Config(create_app(port=args.port), host=HOST, port=args.port,
-                                           log_level="warning"))
+    app = create_app(port=args.port, user_name=args.name.strip() or USER_NAME)
+    server = uvicorn.Server(uvicorn.Config(app, host=HOST, port=args.port, log_level="warning"))
     if not args.no_browser:
         open_when_ready(server, url)
-    server.run()
+    try:
+        server.run()
+    except KeyboardInterrupt:
+        # uvicorn shuts down cleanly first and then re-raises Ctrl+C on purpose;
+        # the traceback that follows is noise, not an error.
+        pass
+    log("stopped")
     return 0
 
 

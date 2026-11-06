@@ -34,7 +34,8 @@ def test_empty_store_gives_empty_views_not_errors(store):
     assert views.checklist(store) == {"items": [], "total_minutes": 0}
     assert views.week(store, FRI_10) == {"friday": WEEK2, "overrides": []}
     assert views.candles(store, FRI_10, FakeHebcal()) == {
-        "available": False, "friday": WEEK2, "reason": "no profile saved yet"}
+        "available": False, "friday": WEEK2, "reason": "no profile saved yet",
+        "date_he": "כ״ו בחשוון תשפ״ז", "parasha_he": "פרשת חיי שרה"}
     assert views.timeline(store, FRI_10, FakeHebcal()) == {
         "state": "empty", "friday": WEEK2, "missing": ["profile", "tasks"]}
 
@@ -54,7 +55,8 @@ def test_candles_for_this_friday_and_time_left(filled):
     assert (c["candles"], c["ready"], c["parasha"]) == ("16:05", "15:55", "Chayei Sara")
     assert (c["state"], c["minutes_until_ready"]) == ("during", 355)
     views.candles(filled, FRI_10, fetch)
-    assert len(fetch.calls) == 1, "second read must come from the Hebcal cache"
+    # One call for the times, one for the Hebrew parasha; the second read is all cache.
+    assert len(fetch.calls) == 2, "second read must come from the Hebcal caches"
 
 
 @pytest.mark.parametrize("now, state, left", [
@@ -115,3 +117,48 @@ def test_hebcal_failure_is_reported_not_raised(filled):
 def test_clock_is_jerusalem_local_and_naive():
     now = views.jerusalem_now()
     assert now.tzinfo is None and now.second == 0
+
+
+def test_hebrew_date_and_parasha_for_this_friday(filled, converter):
+    c = views.candles(filled, FRI_10, FakeHebcal())
+    assert (c["date_he"], c["parasha_he"]) == ("כ״ו בחשוון תשפ״ז", "פרשת חיי שרה")
+    assert c["day_start"] == "08:00"
+    assert converter.calls[0] == {"cfg": "json", "gy": 2026, "gm": 11, "gd": 6, "g2h": 1}
+    views.candles(filled, FRI_10, FakeHebcal())
+    assert len(converter.calls) == 1, "the Hebrew names are cached per Friday"
+    last_week = views.candles(filled, datetime(2026, 10, 29, 9, 0), FakeHebcal())
+    assert last_week["date_he"] == "י״ט בחשוון תשפ״ז"
+
+
+def test_hebrew_names_fall_back_quietly_and_retry_later(filled, converter, monkeypatch):
+    import requests
+    from backend import hebrew
+
+    def down(url, params):
+        raise requests.ConnectionError("offline")
+    c = views.candles(filled, FRI_10, FakeHebcal(), url_fetch=down)
+    assert c["available"] is True and c["date_he"] is None and c["parasha_he"] is None
+    assert not filled.exists(hebrew.CACHE), "a failure is not cached"
+    assert views.candles(filled, FRI_10, FakeHebcal())["date_he"] == "כ״ו בחשוון תשפ״ז"
+
+
+@pytest.mark.parametrize("hm, expected", [("Kislev", "כסלו"), ("Adar II", "אדר ב׳"), ("Sh'vat", "שבט")])
+def test_month_uses_the_everyday_spelling(hm, expected):
+    from backend.hebrew import hebrew_date
+    conv = {"hm": hm, "heDateParts": {"d": "א׳", "m": "short", "y": "תשפ״ז"}}
+    assert hebrew_date(conv) == f"א׳ ב{expected} תשפ״ז"
+
+
+def test_profile_has_the_city_in_hebrew(filled):
+    assert views.profile(filled)["city_he"] == "ירושלים"
+
+
+def test_done_state_is_kept_per_friday(filled):
+    assert views.timeline(filled, FRI_10, FakeHebcal())["done"] == []
+    views.set_done(filled, FRI_10, "task:challah", True)
+    views.set_done(filled, FRI_10, "checklist:Set the alarm", True)
+    views.set_done(filled, FRI_10, "task:challah", True)  # a repeated click changes nothing
+    assert views.timeline(filled, FRI_10, FakeHebcal())["done"] == ["checklist:Set the alarm", "task:challah"]
+    assert views.set_done(filled, FRI_10, "task:challah", False)["done"] == ["checklist:Set the alarm"]
+    assert filled.read_json("done/2026-11-06.json") == {"friday": WEEK2, "done": ["checklist:Set the alarm"]}
+    assert views.done_keys(filled, datetime(2026, 11, 13).date()) == [], "a new Friday starts empty"
