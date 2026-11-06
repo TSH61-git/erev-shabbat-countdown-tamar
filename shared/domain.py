@@ -13,7 +13,10 @@ class ToolError(ValueError):
 
 
 _HHMM = re.compile(r"^([01]\d|2[0-3]):([0-5]\d)$")
-_NAME = re.compile(r"^[a-z0-9_]{1,40}$")
+# Hebrew letters (final forms included) so a Hebrew-speaking user can name her own tasks.
+_NAME = re.compile(r"^[a-z0-9_\u05D0-\u05EA]{1,40}$")
+# Vowel points and cantillation marks: "חַלָּה" and "חלה" must be the same task.
+_HEBREW_MARKS = re.compile(r"[\u0591-\u05C7]")
 
 
 def parse_hhmm(value: object, what: str = "time") -> int:
@@ -49,7 +52,7 @@ def parse_friday(value: object) -> date:
 def normalize_name(value: object, what: str = "task name") -> str:
     if not isinstance(value, str):
         raise ToolError(f"{what} must be a string, got {value!r}")
-    name = re.sub(r"[\s\-]+", "_", value.strip().lower())
+    name = re.sub(r"[\s\-]+", "_", _HEBREW_MARKS.sub("", value).strip().lower())
     if not _NAME.match(name):
         raise ToolError(f"{what} {value!r}: use letters, digits and _ only (max 40)")
     return name
