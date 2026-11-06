@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ערב שבת – עיצוב מאושר</title>
+<style>
+:root{
+  --page:#F4F2EC; --card:#FFFFFF; --border:#E5E1D6; --text:#1C2033; --muted:#5E6275;
+  --primary:#2B3A86; --primary-soft:#EEF0FA; --primary-line:#C9D0F2; --shabbat:#1F2A63;
+  --gold:#B5803A; --gold-light:#E8B967; --gold-text:#8A5A12; --done:#2F7D5C; --done-text:#8C8F9C;
+  --banner:#FBF4E6; --banner-border:#EBD9B5; --banner-text:#5C3D0B; --soft:#FAF8F3; --line:#EEEAE0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--text);font-family:'Segoe UI','Arial Hebrew','Noto Sans Hebrew',system-ui,sans-serif}
+button,input{font-family:inherit}
+.wrap{max-width:1360px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.profile{position:relative}
+.profile-btn{display:flex;align-items:center;gap:12px;padding:6px 6px 6px 16px;min-height:52px;background:var(--card);border:1px solid var(--border);border-radius:999px;cursor:pointer;color:var(--text)}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600}
+.name{font-size:16px;font-weight:600}
+.popover{position:absolute;top:62px;right:0;z-index:5;width:320px;background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:0 18px 40px rgba(28,32,51,.14);padding:20px;display:flex;flex-direction:column;gap:16px}
+.popover[hidden]{display:none}
+.pop-head{display:flex;align-items:center;justify-content:space-between}
+.pop-title{font-size:17px;font-weight:600}
+.icon-btn{width:44px;height:44px;border:none;background:transparent;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.facts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px;font-size:14px}
+.facts dt{color:var(--muted);margin-bottom:2px}.facts dd{margin:0;font-weight:600}
+.btn-soft{min-height:44px;border:1px solid #D9D4C7;background:var(--soft);color:var(--text);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.cols{display:flex;flex-wrap:wrap;gap:20px;align-items:stretch}
+main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.shabbat{background:var(--shabbat);color:#fff;border-radius:24px;padding:28px 32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px}
+.date{font-size:14px;color:#C9D0F2}
+.parasha{font-size:30px;font-weight:700}
+.times{display:flex;flex-wrap:wrap;gap:18px;font-size:15px;color:#E3E7F8;margin-top:4px}
+.times strong{color:#fff;font-size:17px}
+.count{display:flex;flex-direction:column;gap:10px;min-width:240px;flex:0 1 300px}
+.count-label{font-size:14px;color:#C9D0F2}
+.count-num{font-size:40px;font-weight:700;line-height:1}
+.count-num span{font-size:18px;font-weight:500;color:#E3E7F8}
+.bar{height:8px;background:rgba(255,255,255,.16);border-radius:999px;overflow:hidden}
+.bar div{width:42%;height:100%;background:var(--gold-light);border-radius:999px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px 28px;display:flex;flex-direction:column;gap:6px}
+.card-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.card-head h2{margin:0;font-size:20px;font-weight:700}
+.card-head span{font-size:14px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:16px;padding:12px 14px;border-radius:14px;border:1px solid transparent}
+.row.next{background:var(--primary-soft);border-color:var(--primary-line)}
+.time{width:92px;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.row.next .time{color:var(--primary);font-weight:700}
+.body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.title{font-size:16px;font-weight:600}
+.dur{font-size:13px;color:var(--muted)}
+.check{width:30px;height:30px;flex:0 0 30px;margin:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:9px;padding:0;background:#fff;border:2px solid #B9B4A6}
+.check svg{visibility:hidden}
+.row.done .time,.row.done .title{color:var(--done-text);font-weight:400}
+.row.done .title{text-decoration:line-through}
+.row.done .check{background:var(--done);border-color:var(--done)}
+.row.done .check svg{visibility:visible}
+.now{display:flex;align-items:center;gap:10px;margin:4px 0}
+.now span{font-size:13px;font-weight:700;color:#fff;background:var(--primary);padding:3px 10px;border-radius:999px}
+.now div{flex:1;height:2px;background:var(--primary);border-radius:2px}
+.free{display:flex;align-items:center;gap:16px;padding:12px 14px;border:1.5px dashed #D9D4C7;border-radius:14px;color:var(--muted)}
+.free .time{color:var(--muted);font-weight:400}
+.free .title{font-weight:400;font-size:15px;flex:1}
+.section{font-size:13px;font-weight:700;color:var(--gold-text);margin:14px 4px 4px}
+.banner{margin-top:16px;background:var(--banner);border:1px solid var(--banner-border);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;color:var(--banner-text)}
+.banner .text{flex:1;font-size:17px;font-weight:600}
+.banner .t{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+aside{flex:1 1 380px;min-width:0;min-height:720px;background:var(--card);border:1px solid var(--border);border-radius:24px;display:flex;flex-direction:column;overflow:hidden}
+.chat-head{padding:20px 24px;border-bottom:1px solid var(--line)}
+.chat-head h2{margin:0;font-size:18px;font-weight:700}
+.msgs{flex:1;padding:20px 24px;display:flex;flex-direction:column;gap:14px;background:var(--soft)}
+.bubble{max-width:85%;padding:12px 16px;font-size:15px;line-height:1.55}
+.bot{align-self:flex-start;background:#fff;border:1px solid var(--border);border-radius:18px 18px 18px 6px}
+.me{align-self:flex-end;background:var(--primary);color:#fff;border-radius:18px 18px 6px 18px}
+.chip{align-self:flex-start;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--primary);background:var(--primary-soft);padding:6px 12px;border-radius:999px}
+.composer{padding:16px 20px 20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.quick{display:flex;flex-wrap:wrap;gap:8px}
+.quick button{min-height:36px;padding:0 14px;border:1px solid #D9D4C7;background:#fff;color:var(--text);border-radius:999px;font-size:13px;cursor:pointer}
+.input{display:flex;align-items:center;gap:10px;background:var(--page);border-radius:16px;padding:6px 6px 6px 8px}
+.input input{flex:1;min-width:0;min-height:44px;border:none;background:transparent;font-size:15px;padding:0 12px;color:var(--text);outline:none}
+.send{width:44px;height:44px;border:none;border-radius:12px;background:var(--primary);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="profile">
+    <button class="profile-btn" id="profileBtn" aria-expanded="false" aria-controls="profilePop">
+      <span class="avatar">ת</span><span class="name">תמר</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E6275" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="popover" id="profilePop" role="dialog" aria-label="הפרופיל שלי" hidden>
+      <div class="pop-head">
+        <div class="pop-title">הפרטים שלי</div>
+        <button class="icon-btn" id="profileClose" aria-label="סגירה"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6275" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <dl class="facts">
+        <div><dt>עיר</dt><dd>ירושלים</dd></div>
+        <div><dt>מוכנה לפני הדלקת נרות</dt><dd>10 דקות</dd></div>
+        <div><dt>התחלה בשישי</dt><dd>09:00</dd></div>
+        <div><dt>חמישי בלילה</dt><dd>20:00–00:00</dd></div>
+        <div><dt>משימות שמורות</dt><dd>8, מתוכן 3 נלמדו</dd></div>
+      </dl>
+      <button class="btn-soft">שיחה חדשה</button>
+    </div>
+  </div>
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B5803A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21V11M16 21V11M6 21h12M8 8c-1-1.2-1-2.6 0-4 1 1.4 1 2.8 0 4zM16 8c-1-1.2-1-2.6 0-4 1 1.4 1 2.8 0 4z"/></svg>
+    ערב שבת
+  </div>
+</header>
+
+<div class="cols">
+<main>
+  <section class="shabbat" aria-label="זמני שבת">
+    <div>
+      <div class="date">יום שישי · כ״ו בחשוון תשפ״ז</div>
+      <div class="parasha">פרשת חיי שרה</div>
+      <div class="times"><span>הדלקת נרות <strong>16:05</strong></span><span>מוכנה עד <strong>15:55</strong></span></div>
+    </div>
+    <div class="count">
+      <div class="count-label">נשארו עד שבת</div>
+      <div class="count-num">2:25 <span>שעות</span></div>
+      <div class="bar" role="img" aria-label="42 אחוז מהיום עברו"><div></div></div>
+    </div>
+  </section>
+
+  <section class="card" aria-label="המשימות שלי" id="tasks">
+    <div class="card-head"><h2>המשימות שלי</h2><span id="doneCount">3 מתוך 8 הושלמו</span></div>
+
+    <div class="row done"><span class="time">11:45–12:25</span><div class="body"><span class="title">להכין חצילים</span></div><span class="dur">40 דק׳</span><button class="check" aria-pressed="true" aria-label="סימון: להכין חצילים"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></button></div>
+    <div class="row done"><span class="time">12:25–12:40</span><div class="body"><span class="title">לסדר שולחן</span></div><span class="dur">15 דק׳</span><button class="check" aria-pressed="true" aria-label="סימון: לסדר שולחן"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></button></div>
+    <div class="row done"><span class="time">12:40–13:30</span><div class="body"><span class="title">להכין דג</span></div><span class="dur">50 דק׳</span><button class="check" aria-pressed="true" aria-label="סימון: להכין דג"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></button></div>
+
+    <div class="now" aria-label="השעה עכשיו 13:30"><span>עכשיו 13:30</span><div></div></div>
+
+    <div class="row next"><span class="time">13:30–14:20</span><div class="body"><span class="title">לגהץ</span></div><span class="dur">50 דק׳</span><button class="check" aria-pressed="false" aria-label="סימון: לגהץ"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></button></div>
+    <div class="row"><span class="time">14:20–15:00</span><div class="body"><span class="title">לנקות את הבית</span></div><span class="dur">40 דק׳</span><button class="check" aria-pressed="false" aria-label="סימון: לנקות את הבית"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></button></div>
+    <div class="free"><span class="time">15:00–15:30</span><span class="title">זמן פנוי</span><span class="dur">30 דק׳</span></div>
+    <div class="row"><span class="time">15:30–15:45</span><div class="body"><span class="title">להתקלח</span></div><span class="dur">15 דק׳</span><button class="check" aria-pressed="false" aria-label="סימון: להתקלח"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></button></div>
+
+    <div class="section">דברים אחרונים</div>
+    <div class="row"><span class="time">15:45–15:50</span><div class="body"><span class="title">להתקשר לדבורה</span></div><span class="dur">5 דק׳</span><button class="check" aria-pressed="false" aria-label="סימון: להתקשר לדבורה"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></button></div>
+    <div class="row"><span class="time">15:50–15:55</span><div class="body"><span class="title">לכבות שעונים מעוררים</span></div><span class="dur">5 דק׳</span><button class="check" aria-pressed="false" aria-label="סימון: לכבות שעונים מעוררים"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></button></div>
+
+    <div class="banner">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#B5803A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21V11M16 21V11M6 21h12M8 8c-1-1.2-1-2.6 0-4 1 1.4 1 2.8 0 4zM16 8c-1-1.2-1-2.6 0-4 1 1.4 1 2.8 0 4z"/></svg>
+      <span class="text">הריני מקבלת על עצמי שבת קודש</span><span class="t">15:55</span>
+    </div>
+  </section>
+</main>
+
+<aside aria-label="מתכנן זמנים">
+  <div class="chat-head"><h2>מתכנן זמנים</h2></div>
+  <div class="msgs">
+    <div class="bubble bot">בוקר טוב תמר. התוכנית לשישי מוכנה: את מסיימת ב־15:55, עשר דקות לפני הדלקת נרות, ויש לך חצי שעה פנויה.</div>
+    <div class="bubble me">החצילים לקחו לי יותר זמן, אני באיחור של 20 דקות</div>
+    <div class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2B3A86" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>בונה מחדש את לוח הזמנים</div>
+    <div class="bubble bot">סידרתי מחדש. קיצרתי את הזמן הפנוי, וכל השאר נשאר במקום. עכשיו הגיהוץ, עד 14:20. את עדיין מוכנה ב־15:55.</div>
+  </div>
+  <div class="composer">
+    <div class="quick"><button>תכנני לי את שישי</button><button>אני באיחור של __ דקות</button><button>סיכום שבועי</button></div>
+    <div class="input">
+      <label for="msg" class="sr">הודעה</label>
+      <input id="msg" type="text" placeholder="כתבי הודעה…">
+      <button class="send" aria-label="שליחה"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+    </div>
+  </div>
+</aside>
+</div>
+</div>
+
+<script>
+const btn = document.getElementById('profileBtn');
+const pop = document.getElementById('profilePop');
+function setOpen(open){ pop.hidden = !open; btn.setAttribute('aria-expanded', String(open)); }
+btn.addEventListener('click', e => { e.stopPropagation(); setOpen(pop.hidden); });
+document.getElementById('profileClose').addEventListener('click', () => setOpen(false));
+document.addEventListener('click', e => { if (!pop.hidden && !pop.contains(e.target)) setOpen(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+
+const total = document.querySelectorAll('#tasks .row').length;
+function updateCount(){
+  const done = document.querySelectorAll('#tasks .row.done').length;
+  document.getElementById('doneCount').textContent = done + ' מתוך ' + total + ' הושלמו';
+}
+document.querySelectorAll('#tasks .check').forEach(c => c.addEventListener('click', () => {
+  const row = c.closest('.row');
+  row.classList.toggle('done');
+  c.setAttribute('aria-pressed', String(row.classList.contains('done')));
+  updateCount();
+}));
+updateCount();
+</script>
+</body>
+</html>

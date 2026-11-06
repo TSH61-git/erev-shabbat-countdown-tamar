@@ -63,6 +63,49 @@ def test_normalize_name():
         normalize_name("challah!")
 
 
+@pytest.mark.parametrize("raw, expected", [
+    ("להכין חצילים", "להכין_חצילים"),
+    (" לסדר-שולחן ", "לסדר_שולחן"),
+    ("חַלָּה", "חלה"),                       # vowel points dropped
+    ("challah גדולה", "challah_גדולה"),     # mixed scripts
+    ("ניקיון 2", "ניקיון_2"),
+    ("ךםןףץ", "ךםןףץ"),                     # final letters
+    ("א" * 40, "א" * 40),
+])
+def test_normalize_hebrew_names(raw, expected):
+    assert normalize_name(raw) == expected
+
+
+@pytest.mark.parametrize("raw", ["א" * 41, "طبخ", "עוגה🎂", "ש״ש", "צ'יפס", ""])
+def test_hebrew_names_keep_the_other_rules(raw):
+    with pytest.raises(ToolError, match="letters, digits and _ only"):
+        normalize_name(raw)
+
+
+def test_hebrew_task_flows_through_memory_and_scheduler(store):
+    from shared import scheduler
+    mem.update_profile(store, city="Jerusalem", ready_buffer_min=10)
+    mem.upsert_tasks(store, [
+        {"name": "להכין חצילים", "minutes": 40},
+        {"name": "לסדר שולחן", "minutes": 15, "depends_on": ["להכין_חצילים"]},
+        {"name": "להתקלח", "minutes": 15, "anchor": {"type": "last"}},
+    ])
+    mem.set_checklist(store, [{"text": "להדליק פלטה", "minutes": 3}])
+    assert mem.log_actuals(store, WEEK2, [{"task": "לְהָכִין חֲצִילִים", "minutes": 50}]) == [
+        ("להכין_חצילים", 40, 50)]
+    mem.add_week_override(store, WEEK2, {"type": "set_minutes", "task": "לסדר שולחן", "minutes": 20})
+    tl = scheduler.build_timeline(
+        friday=date(2026, 11, 6), candles="16:05", profile=mem.load_profile(store),
+        templates=mem.load_tasks(store), learned=mem.learned_minutes(store),
+        checklist=mem.load_checklist(store),
+        overrides=mem.active_overrides(store, WEEK2, datetime(2026, 11, 6, 9, 0)))
+    planned = tl.to_dict()["planned_minutes"]
+    assert planned == {"להכין_חצילים": 50, "להתקלח": 15, "לסדר_שולחן": 20}
+    order = [b.task for b in tl.blocks if b.kind == "active"]
+    assert order.index("להכין_חצילים") < order.index("לסדר_שולחן") and order[-1] == "להתקלח"
+    assert scheduler.find_violations(tl) == []
+
+
 def test_parse_friday_rejects_other_days():
     assert parse_friday(WEEK1) == date(2026, 10, 30)
     with pytest.raises(ToolError, match="Thursday"):

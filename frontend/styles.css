@@ -1,0 +1,171 @@
+/* ===== Copied as-is from design/design-preview.html (the approved design) ===== */
+:root{
+  --page:#F4F2EC; --card:#FFFFFF; --border:#E5E1D6; --text:#1C2033; --muted:#5E6275;
+  --primary:#2B3A86; --primary-soft:#EEF0FA; --primary-line:#C9D0F2; --shabbat:#1F2A63;
+  --gold:#B5803A; --gold-light:#E8B967; --gold-text:#8A5A12; --done:#2F7D5C; --done-text:#8C8F9C;
+  --banner:#FBF4E6; --banner-border:#EBD9B5; --banner-text:#5C3D0B; --soft:#FAF8F3; --line:#EEEAE0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--text);font-family:'Segoe UI','Arial Hebrew','Noto Sans Hebrew',system-ui,sans-serif}
+button,input{font-family:inherit}
+.wrap{max-width:1360px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.profile{position:relative}
+.profile-btn{display:flex;align-items:center;gap:12px;padding:6px 6px 6px 16px;min-height:52px;background:var(--card);border:1px solid var(--border);border-radius:999px;cursor:pointer;color:var(--text)}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600}
+.name{font-size:16px;font-weight:600}
+.popover{position:absolute;top:62px;right:0;z-index:5;width:320px;background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:0 18px 40px rgba(28,32,51,.14);padding:20px;display:flex;flex-direction:column;gap:16px}
+.popover[hidden]{display:none}
+.pop-head{display:flex;align-items:center;justify-content:space-between}
+.pop-title{font-size:17px;font-weight:600}
+.icon-btn{width:44px;height:44px;border:none;background:transparent;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.facts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px;font-size:14px}
+.facts dt{color:var(--muted);margin-bottom:2px}.facts dd{margin:0;font-weight:600}
+.btn-soft{min-height:44px;border:1px solid #D9D4C7;background:var(--soft);color:var(--text);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.cols{display:flex;flex-wrap:wrap;gap:20px;align-items:stretch}
+main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.shabbat{background:var(--shabbat);color:#fff;border-radius:24px;padding:28px 32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px}
+.date{font-size:14px;color:#C9D0F2}
+.parasha{font-size:30px;font-weight:700}
+.times{display:flex;flex-wrap:wrap;gap:18px;font-size:15px;color:#E3E7F8;margin-top:4px}
+.times strong{color:#fff;font-size:17px}
+.count{display:flex;flex-direction:column;gap:10px;min-width:240px;flex:0 1 300px}
+.count-label{font-size:14px;color:#C9D0F2}
+.count-num{font-size:40px;font-weight:700;line-height:1}
+.count-num span{font-size:18px;font-weight:500;color:#E3E7F8}
+.bar{height:8px;background:rgba(255,255,255,.16);border-radius:999px;overflow:hidden}
+.bar div{width:42%;height:100%;background:var(--gold-light);border-radius:999px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px 28px;display:flex;flex-direction:column;gap:6px}
+.card-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.card-head h2{margin:0;font-size:20px;font-weight:700}
+.card-head span{font-size:14px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:16px;padding:12px 14px;border-radius:14px;border:1px solid transparent}
+.row.next{background:var(--primary-soft);border-color:var(--primary-line)}
+.time{width:92px;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.row.next .time{color:var(--primary);font-weight:700}
+.body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.title{font-size:16px;font-weight:600}
+.dur{font-size:13px;color:var(--muted)}
+.check{width:30px;height:30px;flex:0 0 30px;margin:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:9px;padding:0;background:#fff;border:2px solid #B9B4A6}
+.check svg{visibility:hidden}
+.row.done .time,.row.done .title{color:var(--done-text);font-weight:400}
+.row.done .title{text-decoration:line-through}
+.row.done .check{background:var(--done);border-color:var(--done)}
+.row.done .check svg{visibility:visible}
+.now{display:flex;align-items:center;gap:10px;margin:4px 0}
+.now span{font-size:13px;font-weight:700;color:#fff;background:var(--primary);padding:3px 10px;border-radius:999px}
+.now div{flex:1;height:2px;background:var(--primary);border-radius:2px}
+.free{display:flex;align-items:center;gap:16px;padding:12px 14px;border:1.5px dashed #D9D4C7;border-radius:14px;color:var(--muted)}
+.free .time{color:var(--muted);font-weight:400}
+.free .title{font-weight:400;font-size:15px;flex:1}
+.section{font-size:13px;font-weight:700;color:var(--gold-text);margin:14px 4px 4px}
+.banner{margin-top:16px;background:var(--banner);border:1px solid var(--banner-border);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;color:var(--banner-text)}
+.banner .text{flex:1;font-size:17px;font-weight:600}
+.banner .t{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+aside{flex:1 1 380px;min-width:0;min-height:720px;background:var(--card);border:1px solid var(--border);border-radius:24px;display:flex;flex-direction:column;overflow:hidden}
+.chat-head{padding:20px 24px;border-bottom:1px solid var(--line)}
+.chat-head h2{margin:0;font-size:18px;font-weight:700}
+.msgs{flex:1;padding:20px 24px;display:flex;flex-direction:column;gap:14px;background:var(--soft)}
+.bubble{max-width:85%;padding:12px 16px;font-size:15px;line-height:1.55}
+.bot{align-self:flex-start;background:#fff;border:1px solid var(--border);border-radius:18px 18px 18px 6px}
+.me{align-self:flex-end;background:var(--primary);color:#fff;border-radius:18px 18px 6px 18px}
+.chip{align-self:flex-start;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--primary);background:var(--primary-soft);padding:6px 12px;border-radius:999px}
+.composer{padding:16px 20px 20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.quick{display:flex;flex-wrap:wrap;gap:8px}
+.quick button{min-height:36px;padding:0 14px;border:1px solid #D9D4C7;background:#fff;color:var(--text);border-radius:999px;font-size:13px;cursor:pointer}
+.input{display:flex;align-items:center;gap:10px;background:var(--page);border-radius:16px;padding:6px 6px 6px 8px}
+.input input{flex:1;min-width:0;min-height:44px;border:none;background:transparent;font-size:15px;padding:0 12px;color:var(--text);outline:none}
+.send{width:44px;height:44px;border:none;border-radius:12px;background:var(--primary);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ===== Additions for real data (not in the mockup); same tokens, same scale ===== */
+
+/* The mockup's bar has a fixed width; the real one follows the day. */
+.bar div{transition:width .6s ease}
+.count-num bdi{font-variant-numeric:tabular-nums}
+.count-num.is-text{font-size:32px}
+
+.list{display:flex;flex-direction:column;gap:6px}
+.row.done .dur{color:var(--done-text)}
+.check:focus-visible,.quick button:focus-visible,.send:focus-visible,.profile-btn:focus-visible,
+.icon-btn:focus-visible,.btn-soft:focus-visible,.fab:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.check[aria-busy="true"]{opacity:.6}
+.notice{font-size:13px;font-weight:700;color:var(--gold-text);margin:0 4px 8px;line-height:1.5}
+.empty{color:var(--muted);font-size:15px;line-height:1.6;padding:12px 14px;border:1.5px dashed #D9D4C7;border-radius:14px}
+
+/* Chat: the panel is as tall as the tasks column, as in the design, but its own content
+   never sets that height: long histories scroll inside instead of stretching the page. */
+aside{position:relative}
+.aside-inner{position:absolute;inset:0;display:flex;flex-direction:column}
+.chat-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.chat-head .sheet-close{display:none}
+.msgs{overflow-y:auto;min-height:0}
+.bubble{overflow-wrap:anywhere}
+.bubble > :first-child{margin-top:0}
+.bubble > :last-child{margin-bottom:0}
+.bubble p{margin:0 0 .6em}
+.bubble ul,.bubble ol{margin:0 0 .6em;padding-inline-start:1.2em}
+.bubble code{font-family:ui-monospace,Consolas,monospace;font-size:.9em;background:var(--soft);padding:.05em .3em;border-radius:4px}
+.bubble pre{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(--soft);padding:8px 10px;border-radius:10px;overflow-x:auto;margin:0 0 .6em;direction:ltr;text-align:left}
+.bubble .table-wrap{overflow-x:auto;margin:0 0 .6em}
+.bubble table{border-collapse:collapse;font-size:.92em;font-variant-numeric:tabular-nums}
+.bubble th,.bubble td{text-align:start;padding:4px 8px;border-bottom:1px solid var(--line)}
+.bubble .md-h{font-weight:700}
+.me{white-space:pre-wrap}
+.bot.error{border-color:#E8C4BF;background:#FDF3F1;color:#8A2A1E}
+.bot.typing::after{content:"";display:inline-block;width:.45em;height:1em;vertical-align:-.15em;margin-inline-start:2px;background:var(--muted);animation:blink 1s steps(1) infinite}
+.chip.running svg{animation:spin 2s linear infinite}
+.divider{align-self:center;font-size:12px;color:var(--muted);padding:2px 10px}
+.chat-status{font-size:13px;color:var(--muted)}
+.chat-status:empty{display:none}
+.chat-status.error{color:#8A2A1E}
+.send:disabled{opacity:.55;cursor:default}
+@keyframes blink{50%{opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.chip.running svg,.bot.typing::after{animation:none}.bar div{transition:none}}
+
+/* Phone-only controls stay hidden on wider screens. */
+.fab,.backdrop,.sheet-handle{display:none}
+
+
+/* ===== Phone: tasks first, the chat opens as a bottom sheet ===== */
+@media (max-width:759px){
+  .wrap{padding:16px;gap:16px;padding-bottom:96px}
+  .shabbat{padding:22px 20px;gap:18px}
+  .parasha{font-size:26px}
+  .count{min-width:0;flex:1 1 100%}
+  .count-num{font-size:34px}
+  .card{padding:18px 14px}
+  .row,.free{gap:10px;padding:10px 8px}
+  .time{width:84px;font-size:14px}
+  .title{font-size:15px}
+  .banner{padding:14px 16px}
+  .banner .text{font-size:15px}
+  .popover{width:min(320px,calc(100vw - 32px))}
+
+  aside{position:fixed;inset-inline:0;bottom:0;top:auto;z-index:20;height:88dvh;max-height:none;min-height:0;
+        border-radius:24px 24px 0 0;border-bottom:none;transform:translateY(100%);visibility:hidden;
+        transition:transform .25s ease,visibility 0s linear .25s;box-shadow:0 -18px 40px rgba(28,32,51,.18)}
+  body.sheet-open aside{transform:none;visibility:visible;transition:transform .25s ease}
+  .sheet-handle{display:block;width:40px;height:4px;border-radius:2px;background:#D9D4C7;margin:10px auto 0;flex:none}
+  .chat-head{padding:8px 16px 12px 8px}
+  .chat-head .sheet-close{display:flex}
+  .composer{padding:12px 14px calc(14px + env(safe-area-inset-bottom))}
+  .quick{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .quick button{flex:none}
+
+  .backdrop{display:block;position:fixed;inset:0;z-index:15;background:rgba(28,32,51,.36)}
+  .backdrop[hidden]{display:none}
+  /* Start side (right in RTL): the checkboxes live on the end side and must never be covered. */
+  .fab{display:flex;position:fixed;inset-inline-start:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:10;
+       width:56px;height:56px;border:none;border-radius:50%;background:var(--primary);align-items:center;justify-content:center;
+       cursor:pointer;box-shadow:0 10px 24px rgba(43,58,134,.35)}
+  body.sheet-open .fab{display:none}
+  .fab-dot{position:absolute;top:10px;inset-inline-start:10px;width:12px;height:12px;border-radius:50%;background:var(--gold-light);border:2px solid var(--primary)}
+  .fab-dot[hidden]{display:none}
+  body.sheet-open{overflow:hidden}
+}
+@media (max-width:759px) and (prefers-reduced-motion:reduce){aside,body.sheet-open aside{transition:none}}
+/* An empty notices box must not add a flex gap the design doesn't have. */
+#notices:empty{display:none}

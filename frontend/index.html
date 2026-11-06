@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ערב שבת</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B5803A' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 21V11M16 21V11M6 21h12M8 8c-1-1.2-1-2.6 0-4 1 1.4 1 2.8 0 4zM16 8c-1-1.2-1-2.6 0-4 1 1.4 1 2.8 0 4z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/styles.css">
+<script type="module" src="/static/app.js"></script>
+</head>
+<body>
+<div class="wrap" id="page">
+
+<header class="top">
+  <div class="profile">
+    <button class="profile-btn" id="profileBtn" aria-expanded="false" aria-controls="profilePop" aria-label="פתיחת הפרופיל">
+      <span class="avatar" id="avatar">ת</span><span class="name" id="userName">תמר</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E6275" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="popover" id="profilePop" role="dialog" aria-label="הפרופיל שלי" hidden>
+      <div class="pop-head">
+        <div class="pop-title">הפרטים שלי</div>
+        <button class="icon-btn" id="profileClose" aria-label="סגירה"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6275" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <dl class="facts">
+        <div><dt>עיר</dt><dd id="factCity">—</dd></div>
+        <div><dt>מוכנה לפני הדלקת נרות</dt><dd id="factBuffer">—</dd></div>
+        <div><dt>התחלה בשישי</dt><dd id="factStart">—</dd></div>
+        <div><dt>חמישי בלילה</dt><dd id="factThursday">—</dd></div>
+        <div><dt>משימות שמורות</dt><dd id="factTasks">—</dd></div>
+      </dl>
+      <button class="btn-soft" id="newConversation">שיחה חדשה</button>
+    </div>
+  </div>
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B5803A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21V11M16 21V11M6 21h12M8 8c-1-1.2-1-2.6 0-4 1 1.4 1 2.8 0 4zM16 8c-1-1.2-1-2.6 0-4 1 1.4 1 2.8 0 4z"/></svg>
+    ערב שבת
+  </div>
+</header>
+
+<div class="cols">
+<main>
+  <section class="shabbat" aria-label="זמני שבת">
+    <div>
+      <div class="date" id="hebDate">יום שישי</div>
+      <div class="parasha" id="parasha"></div>
+      <div class="times"><span>הדלקת נרות <strong id="candles">—</strong></span><span>מוכנה עד <strong id="ready">—</strong></span></div>
+    </div>
+    <div class="count">
+      <div class="count-label" id="countLabel">נשארו עד שבת</div>
+      <div class="count-num" aria-live="polite"><bdi id="countValue">—</bdi> <span id="countUnit"></span></div>
+      <div class="bar" role="img" id="bar" aria-label="0 אחוז מהיום עברו"><div id="barFill"></div></div>
+    </div>
+  </section>
+
+  <section class="card" aria-label="המשימות שלי" id="tasks">
+    <div class="card-head"><h2>המשימות שלי</h2><span id="doneCount"></span></div>
+    <div id="notices"></div>
+    <div class="list" id="rows"></div>
+
+    <div class="banner">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#B5803A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21V11M16 21V11M6 21h12M8 8c-1-1.2-1-2.6 0-4 1 1.4 1 2.8 0 4zM16 8c-1-1.2-1-2.6 0-4 1 1.4 1 2.8 0 4z"/></svg>
+      <span class="text">הריני מקבלת על עצמי שבת קודש</span><span class="t" id="bannerReady">—</span>
+    </div>
+  </section>
+</main>
+
+<aside aria-label="מתכנן זמנים" id="chat">
+ <div class="aside-inner">
+  <div class="sheet-handle" aria-hidden="true"></div>
+  <div class="chat-head">
+    <h2>מתכנן זמנים</h2>
+    <button class="icon-btn sheet-close" id="chatClose" aria-label="סגירת הצ׳אט"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6275" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="msgs" id="msgs" role="log" aria-label="השיחה"></div>
+  <div class="composer">
+    <div class="chat-status" id="chatStatus" aria-live="polite"></div>
+    <div class="quick" id="quick">
+      <button type="button" data-send="תכנני לי את שישי">תכנני לי את שישי</button>
+      <button type="button" data-fill="אני באיחור של __ דקות">אני באיחור של __ דקות</button>
+      <button type="button" data-fill="סיכום שבועי: ">סיכום שבועי</button>
+    </div>
+    <form class="input" id="composer">
+      <label for="msg" class="sr">הודעה</label>
+      <input id="msg" type="text" placeholder="כתבי הודעה…" autocomplete="off" maxlength="4000">
+      <button class="send" id="send" type="submit" aria-label="שליחה"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+    </form>
+  </div>
+ </div>
+</aside>
+</div>
+</div>
+
+<div class="backdrop" id="backdrop" hidden></div>
+<button class="fab" id="chatFab" type="button" aria-label="פתיחת מתכנן הזמנים" aria-controls="chat" aria-expanded="false">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+  <span class="fab-dot" id="fabDot" hidden></span>
+</button>
+</body>
+</html>
