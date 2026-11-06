@@ -8,7 +8,7 @@ One agent, built twice: on the raw **Claude Messages API** and on the **Claude A
 
 ![Python](https://img.shields.io/badge/python-3.13-blue)
 ![Model](https://img.shields.io/badge/model-claude--opus--5--5-orange)
-![Tests](https://img.shields.io/badge/offline%20tests-136%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/offline%20tests-230%20passing-brightgreen)
 ![Checks](https://img.shields.io/badge/scenario%20checks-7%2F7%20both%20versions-brightgreen)
 
 </div>
@@ -75,7 +75,10 @@ Both versions call the same tools in `shared/`, so they differ only in the harne
 shared/        tools, scheduler, Hebcal client, memory files, checks, results
 API/           main.py, agent.py, harness/ (8 files, one per responsibility)
 SDK/           main.py, agent.py, tools.py (each harness replacement marked "# replaces:")
-tests/         136 offline tests with fake Claude clients, no key needed
+backend/       local FastAPI server for the web app, on top of the SDK agent
+frontend/      the Hebrew web page (plain HTML, CSS and JS modules, no build step)
+design/        the approved screen design the page is built from
+tests/         offline tests with fake Claude clients, no key needed
 scenario.json  8 turns, 2 sessions, fixed dates
 results/       api.json, sdk.json and run logs
 ```
@@ -102,6 +105,40 @@ $env:ANTHROPIC_API_KEY = "sk-ant-..."
 ```
 
 Each run wipes its own `data/` folder, plays the 8 turns, runs the 7 checks on the saved state, and writes the results file.
+
+## 🖥️ Local web app
+
+A one-screen Hebrew page for real Fridays, built on the SDK version: chat with the planner, and see this Friday's tasks in order with a live countdown to the ready time.
+
+![The local web app on a desktop: the Shabbat card with the countdown, the task list with the "now" marker, and the planner chat](docs/screenshots/app-desktop.png)
+
+<p align="center">
+  <img src="docs/screenshots/app-phone.png" width="300" alt="On a phone: the Shabbat card and the task list, with a round button for the chat">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/app-phone-chat.png" width="300" alt="On a phone: the chat open as a bottom sheet, with a tool chip and a streamed reply">
+</p>
+
+<sub>Screenshots use sample data (the approved design's example day), not a real conversation.</sub>
+
+**Start it** in a terminal without `ANTHROPIC_API_KEY` (like the SDK version, it runs on your Claude Code login and refuses to start if the key is set):
+
+```powershell
+.venv\Scripts\python -m backend
+```
+
+The browser opens at `http://127.0.0.1:8765`; Ctrl+C stops the server. Options: `--port 8765`, `--no-browser`, and `--name "תמר"` for the name shown on the page.
+
+**What the screen shows**
+- **Shabbat card:** the Hebrew date and parasha (from Hebcal), candle lighting, the ready time, a countdown to ready, and how much of the day has passed.
+- **המשימות שלי:** this Friday's plan as one list, one task at a time, with a "now" marker, the next task highlighted, free time, and the last-minute checklist ("דברים אחרונים"). Tick a task when it's done; ticks are kept per Friday and start fresh each week.
+- **מתכנן זמנים:** the chat. Replies stream in, a chip shows what the planner is doing, and quick prompts cover the common requests. On a phone the chat opens from a round button as a bottom sheet.
+
+**How it behaves**
+- **One conversation per week.** Messages resume the same Claude Code session, so the planner remembers the conversation across visits and restarts. A new Friday starts a fresh session; everything it learned stays in the saved files. "שיחה חדשה" in the profile menu starts over by hand.
+- **App-only rules:** in the app every task is active (never two at once, enforced by a hook on the tools), the planner answers in Hebrew when you write Hebrew, and task names may be Hebrew. The scenario's system prompt is unchanged.
+- **Reading is free.** The page reads the saved files directly; only chat messages call Claude. The page shows no cost; an estimate per message is in the server log and in `data/app/chat.jsonl`.
+- **Local only.** The server binds to `127.0.0.1`, accepts only its own Host and Origin, and takes writes only as JSON from its own page, because it acts with your Claude Code account. The page loads nothing from the internet.
+- **Its own data folder:** `data/app/` (git-ignored). The scenario runs never touch it. Delete it to start from scratch.
 
 ## 🧪 The scenario
 
