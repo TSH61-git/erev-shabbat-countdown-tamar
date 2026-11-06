@@ -9,7 +9,8 @@ from claude_agent_sdk import AssistantMessage, StreamEvent, TextBlock
 from fastapi.testclient import TestClient
 
 from backend.app import create_app
-from backend.chat import HISTORY, STATE, AppAgent, ChatService, TeeClient
+from backend.chat import (APP_RULES, HISTORY, REPLAN_LABEL, STATE, AppAgent, ChatService, TeeClient,
+                          refuse_passive, tool_label)
 from SDK.agent import SESSION_FILE, SdkAgent
 from shared import memory_files as mem
 from shared.store import DataStore
@@ -82,11 +83,12 @@ def test_events_stream_in_order_and_the_tool_writes_to_data_app(data_dir):
     assert [e for e, _ in events] == ["start", "tool", "text", "done"]
     start, tool, text, done = (d for _, d in events)
     assert start == {"turn": 1, "friday": "2026-10-30", "resumed": False}
-    assert tool == {"name": "update_profile", "label": "Saving your profile"}
+    assert tool == {"name": "update_profile", "label": "שמירת הפרטים"}
     assert text == {"delta": "Here is your plan."}
     assert done["reply"] == "Here is your plan." and done["tools"] == ["update_profile"]
     assert done["changed"] == ["candles", "profile", "timeline"]
-    assert done["cost_usd"] > 0 and done["session_id"] == "sess-1" and done["is_error"] is False
+    assert done["session_id"] == "sess-1" and done["is_error"] is False
+    assert not {"cost_usd", "seconds", "week_cost_usd"} & set(done), "the page never sees cost"
     store = DataStore(data_dir)
     assert mem.load_profile(store).city == "Jerusalem"
     assert store.read_json(SESSION_FILE) == {"session_id": "sess-1"}
@@ -114,14 +116,11 @@ def test_a_new_friday_starts_a_fresh_session_and_marks_the_week(data_dir):
     send(client, "profile")
     clock.now = THU_0905
     send(client, "tasks")
-    week1_cost = client.get("/api/history").json()["week_cost_usd"]
     clock.now = NEXT_THU
     events = send(client, "Plan this Friday.")
     assert events[0][1] == {"turn": 3, "friday": "2026-11-06", "resumed": False}
     assert FakeClaudeCode.instances[-1].options.resume is None
     assert events[-1][1]["changed"] == ["candles", "timeline"]
-    assert events[-1][1]["week_cost_usd"] == pytest.approx(events[-1][1]["cost_usd"], abs=1e-4)
-    assert week1_cost > events[-1][1]["cost_usd"]
     history = client.get("/api/history").json()["messages"]
     assert [m["type"] for m in history] == ["week", "user", "assistant", "user", "assistant",
                                             "week", "user", "assistant"]
@@ -166,7 +165,10 @@ def test_history_survives_a_restart(data_dir):
     msgs = make_client(data_dir, Clock(THU_0905)).get("/api/history").json()["messages"]
     assert [(m["type"], m.get("text")) for m in msgs] == [
         ("week", None), ("user", "I live in Jerusalem."), ("assistant", "Here is your plan.")]
-    assert msgs[2]["cost_usd"] > 0 and msgs[2]["tools"] == ["update_profile"]
+    assert msgs[2]["tools"] == ["update_profile"]
+    assert not any({"cost_usd", "seconds"} & set(m) for m in msgs), "the page never sees cost"
+    saved = DataStore(data_dir).read_jsonl(HISTORY)[-1]
+    assert saved["cost_usd"] > 0 and saved["seconds"] >= 0, "but the data keeps it"
 
 
 def test_busy_service_refuses_a_second_message(data_dir):
@@ -223,8 +225,57 @@ def test_app_agent_only_adds_partial_messages(tmp_path):
     store = DataStore(tmp_path / "data" / "app")
     base, app = SdkAgent(store, 1, "sess-1").options(), AppAgent(store, 1, "sess-1").options()
     assert app.include_partial_messages is True and base.include_partial_messages is False
-    skip = {"include_partial_messages", "hooks", "mcp_servers"}  # hold per-instance objects
+    assert app.system_prompt == base.system_prompt + APP_RULES
+    assert "Never create passive tasks" in app.system_prompt and "Hebrew" in app.system_prompt
+    skip = {"include_partial_messages", "hooks", "mcp_servers", "system_prompt"}  # checked here
     for f in dataclasses.fields(base):
         if f.name not in skip:
             assert getattr(app, f.name) == getattr(base, f.name), f.name
-    assert set(app.hooks) == set(base.hooks) and list(app.mcp_servers) == list(base.mcp_servers)
+    assert set(app.hooks) == set(base.hooks) | {"PreToolUse"}
+    assert list(app.mcp_servers) == list(base.mcp_servers)
+    [guard] = app.hooks["PreToolUse"]
+    assert guard.matcher == "mcp__shabbat__upsert_tasks|mcp__shabbat__set_week_override"
+    assert guard.hooks == [refuse_passive]
+
+
+@pytest.mark.parametrize("name, args, label", [
+    ("build_timeline", {"friday_date": "2026-11-06"}, "בניית לוח הזמנים"),
+    ("build_timeline", {"friday_date": "2026-11-06", "now": "2026-11-06T13:00"}, REPLAN_LABEL),
+    ("build_timeline", {"friday_date": "2026-11-06", "delay_minutes": 20}, REPLAN_LABEL),
+    ("upsert_tasks", {}, "שמירת משימות"),
+    ("unknown_tool", None, "unknown_tool"),
+])
+def test_tool_labels_are_hebrew_and_show_replanning(name, args, label):
+    assert tool_label(name, args) == label
+    assert REPLAN_LABEL == "בונה מחדש את לוח הזמנים"  # the design's exact text
+
+
+def _hook_input(tool, tool_input):
+    return {"hook_event_name": "PreToolUse", "tool_name": f"mcp__shabbat__{tool}",
+            "tool_input": tool_input, "tool_use_id": "tu1"}
+
+
+async def test_passive_tasks_are_refused_with_a_reason():
+    out = await refuse_passive(_hook_input("upsert_tasks", {"tasks": [
+        {"name": "להכין_חלה", "minutes": 30},
+        {"name": "התפחה", "minutes": 60, "kind": "passive"}]}), "tu1", None)
+    spec = out["hookSpecificOutput"]
+    assert spec["hookEventName"] == "PreToolUse" and spec["permissionDecision"] == "deny"
+    assert 'kind "active"' in spec["permissionDecisionReason"] and "התפחה" in spec["permissionDecisionReason"]
+
+
+async def test_passive_task_added_for_one_week_is_refused_too():
+    out = await refuse_passive(_hook_input("set_week_override", {"friday_date": "2026-11-06", "change": {
+        "type": "add_task", "new_task": {"name": "עוגה_בתנור", "minutes": 50, "kind": "passive"}}}), "tu1", None)
+    assert out["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+@pytest.mark.parametrize("tool, tool_input", [
+    ("upsert_tasks", {"tasks": [{"name": "להכין_חצילים", "minutes": 40},
+                                {"name": "לגהץ", "minutes": 50, "kind": "active"}]}),
+    ("set_week_override", {"friday_date": "2026-11-06", "change": {"type": "skip_task", "task": "לגהץ"}}),
+    ("set_week_override", {"friday_date": "2026-11-06", "change": {
+        "type": "add_task", "new_task": {"name": "עוגה", "minutes": 50}}}),
+])
+async def test_active_tasks_and_other_changes_pass(tool, tool_input):
+    assert await refuse_passive(_hook_input(tool, tool_input), "tu1", None) == {}
